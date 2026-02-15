@@ -132,7 +132,9 @@ export function useShoppingApp() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
 
   const [userName, setUserName] = useState(() => localStorage.getItem(STORAGE_NAME) ?? '')
-  const [listName, setListName] = useState(() => DEFAULT_LIST_NAME[getInitialLanguage()])
+  const [listName, setListName] = useState(() =>
+    urlJoinCode ? '' : DEFAULT_LIST_NAME[getInitialLanguage()],
+  )
   const [joinCode, setJoinCode] = useState('')
   const [newItemText, setNewItemText] = useState('')
   const [listRename, setListRename] = useState('')
@@ -175,14 +177,11 @@ export function useShoppingApp() {
     }
     setMode('join')
     setJoinCode(urlJoinCode)
-    // Clean the URL so refreshing won't re-trigger join
+    // Clean the URL so refreshing won't re-trigger
     const cleanUrl = new URL(window.location.href)
     cleanUrl.searchParams.delete('join')
     window.history.replaceState({}, '', cleanUrl.toString())
   }, [urlJoinCode])
-
-  // Auto-join effect is placed after handleJoin definition (below)
-  const autoJoinAttemptedRef = useRef(false)
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -570,18 +569,6 @@ export function useShoppingApp() {
     const joined = data[0] as ShoppingList
     setActiveList(joined)
   }, [isOnline, joinCode, t, userName])
-
-  // Auto-join when arriving via invite link and auth is ready
-  useEffect(() => {
-    if (!urlJoinCode || autoJoinAttemptedRef.current) {
-      return
-    }
-    if (authLoading || !authUser || activeList) {
-      return
-    }
-    autoJoinAttemptedRef.current = true
-    void handleJoin()
-  }, [urlJoinCode, authLoading, authUser, activeList, handleJoin])
 
   const addItem = useCallback(async () => {
     if (!supabase || !activeList) {
