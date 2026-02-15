@@ -22,7 +22,7 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'pwa-192.svg', 'pwa-512.svg'],
+      includeAssets: ['favicon.svg', 'pwa-192.svg', 'pwa-512.svg', 'pwa-maskable-192.svg', 'pwa-maskable-512.svg'],
       manifest: {
         name: 'Family Shopping List',
         short_name: 'Shop List',
@@ -43,7 +43,19 @@ export default defineConfig({
             src: 'pwa-512.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-            purpose: 'any maskable',
+            purpose: 'any',
+          },
+          {
+            src: 'pwa-maskable-192.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml',
+            purpose: 'maskable',
+          },
+          {
+            src: 'pwa-maskable-512.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'maskable',
           },
         ],
       },
