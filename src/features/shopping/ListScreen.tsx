@@ -3,6 +3,7 @@ import { memo, useCallback, useRef, useState } from 'react'
 import {
   Check,
   Copy,
+  Download,
   Link2,
   LogOut,
   MoreHorizontal,
@@ -334,6 +335,7 @@ export const ListScreen = memo(function ListScreen({
   onLeaveList,
 }: ListScreenProps) {
   const [showSettings, setShowSettings] = useState(false)
+  const [installDismissed, setInstallDismissed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleAddItem = useCallback(() => {
@@ -417,6 +419,45 @@ export const ListScreen = memo(function ListScreen({
       {/* ───── Item list (scrollable middle) ───── */}
       <div className="flex-1 overflow-y-auto overscroll-contain">
         <div className="mx-auto max-w-2xl px-4 py-4">
+          {/* Install banner */}
+          <AnimatePresence>
+            {installVisible && !installDismissed && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginBottom: 12 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-center gap-3 rounded-2xl bg-[var(--primary)]/5 border border-[var(--primary)]/15 px-4 py-3.5">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+                    <Download className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold leading-tight">{t.installBannerTitle}</p>
+                    <p className="text-xs text-[var(--muted-foreground)] leading-snug mt-0.5">{t.installBannerDescription}</p>
+                  </div>
+                  <motion.button
+                    type="button"
+                    onClick={onInstall}
+                    whileTap={{ scale: 0.93 }}
+                    className="flex-shrink-0 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white shadow-sm"
+                  >
+                    {t.installBannerAction}
+                  </motion.button>
+                  <button
+                    type="button"
+                    onClick={() => setInstallDismissed(true)}
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--muted)] transition-colors"
+                    aria-label="Dismiss"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {sortedItems.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
