@@ -122,7 +122,7 @@ function ItemRow({
         </div>
 
         {/* Item text */}
-        <span className="relative min-w-0 flex-1 select-none text-left text-[15px] leading-snug">
+        <span className="relative min-w-0 flex-1 select-none text-start text-[15px] leading-snug">
           <span className={item.checked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'}>
             {item.text}
           </span>
