@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { memo } from 'react'
+import { ShoppingBag } from 'lucide-react'
 import { Button } from '../../components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Input } from '../../components/ui/input'
 import type { AppMode } from './types'
 import type { CopyText } from './copy'
@@ -42,26 +42,37 @@ export const OnboardingScreen = memo(function OnboardingScreen({
   return (
     <motion.div
       key="onboarding"
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
-      className="mx-auto w-full max-w-xl"
+      className="mx-auto w-full max-w-md"
     >
-      <Card>
-        <CardHeader className="space-y-3">
-          <CardTitle className="text-2xl">{t.appTitle}</CardTitle>
-          <CardDescription>{t.createDescription}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="inline-flex rounded-[var(--radius)] border bg-[var(--muted)] p-1">
+      <div className="rounded-3xl bg-[var(--card)] p-6 shadow-[0_2px_20px_rgba(0,0,0,0.06)] sm:p-8">
+        {/* Header */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
+            className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--primary)]/10 text-[var(--primary)]"
+          >
+            <ShoppingBag className="h-8 w-8" />
+          </motion.div>
+          <h1 className="text-2xl font-bold tracking-tight">{t.appTitle}</h1>
+          <p className="mt-1.5 text-sm text-[var(--muted-foreground)]">{t.createDescription}</p>
+        </div>
+
+        <div className="space-y-5">
+          {/* Tab toggle + language */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="inline-flex rounded-2xl bg-[var(--muted)] p-1">
               <button
                 type="button"
                 onClick={() => setMode('create')}
-                className={`rounded-[calc(var(--radius)-4px)] px-4 py-1.5 text-sm transition ${
+                className={`rounded-xl px-5 py-2 text-sm font-medium transition-all ${
                   mode === 'create'
                     ? 'bg-[var(--card)] text-[var(--foreground)] shadow-sm'
-                    : 'text-[var(--muted-foreground)]'
+                    : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
                 }`}
               >
                 {t.createTab}
@@ -69,10 +80,10 @@ export const OnboardingScreen = memo(function OnboardingScreen({
               <button
                 type="button"
                 onClick={() => setMode('join')}
-                className={`rounded-[calc(var(--radius)-4px)] px-4 py-1.5 text-sm transition ${
+                className={`rounded-xl px-5 py-2 text-sm font-medium transition-all ${
                   mode === 'join'
                     ? 'bg-[var(--card)] text-[var(--foreground)] shadow-sm'
-                    : 'text-[var(--muted-foreground)]'
+                    : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
                 }`}
               >
                 {t.joinTab}
@@ -81,61 +92,74 @@ export const OnboardingScreen = memo(function OnboardingScreen({
             <button
               type="button"
               onClick={onToggleLanguage}
-              className="rounded-[calc(var(--radius)-2px)] border bg-[var(--card)] px-3 py-1.5 text-sm"
+              className="rounded-xl bg-[var(--muted)] px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
             >
               {t.language}
             </button>
           </div>
 
-          <div className="space-y-3">
+          {/* Name */}
+          <div className="space-y-1.5">
             <label className="text-sm font-medium">{t.yourName}</label>
             <Input
               value={userName}
-              onChange={(event) => setUserName(event.target.value)}
+              onChange={(e) => setUserName(e.target.value)}
               placeholder={t.yourNamePlaceholder}
+              className="h-11 rounded-xl"
             />
           </div>
 
-          <div className="space-y-3">
+          {/* List name */}
+          <div className="space-y-1.5">
             <label className="text-sm font-medium">
               {mode === 'create' ? t.familyListName : t.listNameOptional}
             </label>
             <Input
               value={listName}
-              onChange={(event) => setListName(event.target.value)}
+              onChange={(e) => setListName(e.target.value)}
               placeholder={t.listNamePlaceholder}
+              className="h-11 rounded-xl"
             />
           </div>
 
-          {mode === 'join' ? (
-            <div className="space-y-3">
+          {/* Join code */}
+          {mode === 'join' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-1.5"
+            >
               <label className="text-sm font-medium">{t.inviteCode}</label>
               <Input
                 value={joinCode}
-                onChange={(event) => setJoinCode(event.target.value.toUpperCase())}
+                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                 placeholder="XXXX-XXXX-XXXX"
                 dir="ltr"
+                className="h-11 rounded-xl font-mono tracking-wider"
               />
-            </div>
-          ) : null}
+            </motion.div>
+          )}
 
-          {errorText ? <p className="text-sm text-[var(--destructive)]">{errorText}</p> : null}
+          {errorText && <p className="text-sm text-[var(--destructive)]">{errorText}</p>}
 
-          {showRetryAuth && onRetryAuth ? (
-            <Button variant="outline" className="w-full" onClick={onRetryAuth}>
+          {showRetryAuth && onRetryAuth && (
+            <Button variant="outline" className="w-full rounded-xl" onClick={onRetryAuth}>
               {t.retryAuth}
             </Button>
-          ) : null}
+          )}
 
-          <Button
-            className="w-full"
-            onClick={onSubmit}
-            disabled={mode === 'join' ? !joinCode.trim() : !listName.trim()}
-          >
-            {mode === 'create' ? t.createButton : t.joinButton}
-          </Button>
-        </CardContent>
-      </Card>
+          <motion.div whileTap={{ scale: 0.98 }}>
+            <Button
+              className="h-12 w-full rounded-2xl bg-[var(--primary)] text-base font-semibold text-white shadow-md hover:opacity-90"
+              onClick={onSubmit}
+              disabled={mode === 'join' ? !joinCode.trim() : !listName.trim()}
+            >
+              {mode === 'create' ? t.createButton : t.joinButton}
+            </Button>
+          </motion.div>
+        </div>
+      </div>
     </motion.div>
   )
 })

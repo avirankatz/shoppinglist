@@ -1,5 +1,4 @@
 import { AnimatePresence } from 'framer-motion'
-import { Card, CardDescription, CardHeader, CardTitle } from './components/ui/card'
 import { ListScreen } from './features/shopping/ListScreen'
 import { OnboardingScreen } from './features/shopping/OnboardingScreen'
 import { useShoppingApp } from './features/shopping/useShoppingApp'
@@ -9,32 +8,28 @@ function App() {
 
   if (!vm.hasSupabaseConfig) {
     return (
-      <main className="mx-auto min-h-screen max-w-2xl p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>{vm.t.appTitle}</CardTitle>
-            <CardDescription>{vm.t.missingEnv}</CardDescription>
-          </CardHeader>
-        </Card>
+      <main className="flex min-h-screen items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-3xl bg-[var(--card)] p-8 text-center shadow-[0_2px_20px_rgba(0,0,0,0.06)]">
+          <h1 className="text-xl font-bold">{vm.t.appTitle}</h1>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">{vm.t.missingEnv}</p>
+        </div>
       </main>
     )
   }
 
   if (vm.authLoading) {
     return (
-      <main className="mx-auto min-h-screen max-w-2xl p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>{vm.t.loading}</CardTitle>
-          </CardHeader>
-        </Card>
+      <main className="flex min-h-screen items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+          <p className="text-sm font-medium text-[var(--muted-foreground)]">{vm.t.loading}</p>
+        </div>
       </main>
     )
   }
 
   return (
-    <main dir={vm.isRtl ? 'rtl' : 'ltr'} className="min-h-screen px-4 py-8 md:px-6">
-      <div className="mx-auto mb-6 max-w-2xl text-sm text-[var(--muted-foreground)]">{vm.t.noBackend}</div>
+    <main dir={vm.isRtl ? 'rtl' : 'ltr'}>
       <AnimatePresence mode="wait">
         {vm.activeList ? (
           <ListScreen
@@ -61,22 +56,24 @@ function App() {
             onLeaveList={vm.onLeaveList}
           />
         ) : (
-          <OnboardingScreen
-            t={vm.t}
-            mode={vm.mode}
-            setMode={vm.setMode}
-            onToggleLanguage={vm.onToggleLanguage}
-            userName={vm.userName}
-            setUserName={vm.setUserName}
-            listName={vm.listName}
-            setListName={vm.setListName}
-            joinCode={vm.joinCode}
-            setJoinCode={vm.setJoinCode}
-            errorText={vm.errorText}
-            showRetryAuth={vm.showAuthRetry}
-            onRetryAuth={vm.onRetryAuth}
-            onSubmit={vm.onSubmitOnboarding}
-          />
+          <div className="flex min-h-[100dvh] items-center justify-center px-4 py-8">
+            <OnboardingScreen
+              t={vm.t}
+              mode={vm.mode}
+              setMode={vm.setMode}
+              onToggleLanguage={vm.onToggleLanguage}
+              userName={vm.userName}
+              setUserName={vm.setUserName}
+              listName={vm.listName}
+              setListName={vm.setListName}
+              joinCode={vm.joinCode}
+              setJoinCode={vm.setJoinCode}
+              errorText={vm.errorText}
+              showRetryAuth={vm.showAuthRetry}
+              onRetryAuth={vm.onRetryAuth}
+              onSubmit={vm.onSubmitOnboarding}
+            />
+          </div>
         )}
       </AnimatePresence>
     </main>
