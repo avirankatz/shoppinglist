@@ -19,28 +19,6 @@ import { Input } from '../../components/ui/input'
 import type { CopyText } from './copy'
 import type { ShoppingItem, ShoppingList } from './types'
 
-/* ---------- Confetti particles ---------- */
-
-type Particle = {
-  id: number
-  angle: number
-  distance: number
-  color: string
-  size: number
-}
-
-const CONFETTI_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
-
-function generateParticles(): Particle[] {
-  return Array.from({ length: 8 }, (_, i) => ({
-    id: i,
-    angle: i * 45 + Math.random() * 25 - 12,
-    distance: 18 + Math.random() * 16,
-    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length]!,
-    size: 4 + Math.random() * 3,
-  }))
-}
-
 /* ---------- Single item row ---------- */
 
 function ItemRow({
@@ -54,18 +32,16 @@ function ItemRow({
   onRemove: (id: string) => void
   deleteLabel: string
 }) {
-  const [confetti, setConfetti] = useState<Particle[] | null>(null)
+  const [ripple, setRipple] = useState(false)
   const [justChecked, setJustChecked] = useState(false)
 
   const handleToggle = () => {
     if (!item.checked) {
-      const particles = generateParticles()
-      setConfetti(particles)
+      setRipple(true)
       setJustChecked(true)
-      // Try haptic feedback
       if (navigator.vibrate) navigator.vibrate(30)
       setTimeout(() => {
-        setConfetti(null)
+        setRipple(false)
         setJustChecked(false)
       }, 650)
     }
@@ -125,33 +101,18 @@ function ItemRow({
           </AnimatePresence>
         </motion.button>
 
-        {/* Confetti burst */}
+        {/* Ripple ring */}
         <AnimatePresence>
-          {confetti &&
-            confetti.map((p) => (
-              <motion.div
-                key={p.id}
-                className="pointer-events-none absolute rounded-full"
-                style={{
-                  width: p.size,
-                  height: p.size,
-                  backgroundColor: p.color,
-                  left: '50%',
-                  top: '50%',
-                  marginLeft: -p.size / 2,
-                  marginTop: -p.size / 2,
-                }}
-                initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
-                animate={{
-                  scale: [0, 1.3, 0.6],
-                  x: Math.cos((p.angle * Math.PI) / 180) * p.distance,
-                  y: Math.sin((p.angle * Math.PI) / 180) * p.distance,
-                  opacity: [1, 1, 0],
-                }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              />
-            ))}
+          {ripple && (
+            <motion.span
+              key="ripple"
+              className="pointer-events-none absolute inset-0 rounded-full border-2 border-[var(--check-green)]"
+              initial={{ scale: 1, opacity: 0.7 }}
+              animate={{ scale: 2.4, opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            />
+          )}
         </AnimatePresence>
       </div>
 
