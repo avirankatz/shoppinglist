@@ -585,19 +585,37 @@ export function useShoppingApp() {
       return
     }
 
-    const { error } = await supabase.from('shopping_items').insert({
-      list_id: activeList.id,
-      text: trimmed,
-      checked: false,
-    })
+    const { error, data } = await supabase
+      .from('shopping_items')
+      .insert({
+        list_id: activeList.id,
+        text: trimmed,
+        checked: false,
+      })
+      .select()
+
+    if (!error && data && data.length > 0) {
+      const serverItem = data[0] as ShoppingItem
+      setItems((current) => {
+        // Avoid duplicate if realtime already delivered it
+        if (current.some((i) => i.id === serverItem.id)) {
+          return current
+        }
+        return [serverItem, ...current]
+      })
+      setNewItemText('')
+      return
+    }
 
     if (!error) {
+      // Insert succeeded but no data returned — force refetch
+      void loadListState(activeList.id)
       setNewItemText('')
       return
     }
 
     setErrorText(t.saveFailed)
-  }, [activeList, isOnline, newItemText, t])
+  }, [activeList, isOnline, newItemText, t, loadListState])
 
   const toggleItem = useCallback(
     async (item: ShoppingItem) => {
