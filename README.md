@@ -73,3 +73,14 @@ export default defineConfig([
   },
 ])
 ```
+
+## Deploy to GitHub Pages
+
+This repo includes an Actions workflow at [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml) that deploys on pushes to `main`.
+
+1. Push this repository to GitHub.
+2. In repository settings, open **Pages**.
+3. Set **Source** to **GitHub Actions**.
+4. Push to `main` (or run the workflow manually).
+
+The Vite `base` path is configured automatically in CI so project pages deploy correctly under `/<repo>/`.

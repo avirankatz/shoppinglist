@@ -3,8 +3,16 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const repositoryName = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? ''
+const isUserOrOrgPagesRepo = repositoryName.endsWith('.github.io')
+const pagesBase =
+  process.env.GITHUB_ACTIONS === 'true' && repositoryName && !isUserOrOrgPagesRepo
+    ? `/${repositoryName}/`
+    : '/'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base: pagesBase,
   plugins: [
     tailwindcss(),
     react({
@@ -22,7 +30,8 @@ export default defineConfig({
         theme_color: '#111827',
         background_color: '#f8fafc',
         display: 'standalone',
-        start_url: '/',
+        start_url: pagesBase,
+        scope: pagesBase,
         icons: [
           {
             src: 'pwa-192.svg',
