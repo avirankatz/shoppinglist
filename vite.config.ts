@@ -22,13 +22,13 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['pwa-192.svg', 'pwa-512.svg'],
+      includeAssets: ['favicon.svg', 'pwa-192.svg', 'pwa-512.svg'],
       manifest: {
         name: 'Family Shopping List',
-        short_name: 'Shop Family',
-        description: 'Peer-to-peer family shopping list',
-        theme_color: '#111827',
-        background_color: '#f8fafc',
+        short_name: 'Shop List',
+        description: 'Family shopping list – shared in real time',
+        theme_color: '#059669',
+        background_color: '#faf9f6',
         display: 'standalone',
         start_url: pagesBase,
         scope: pagesBase,

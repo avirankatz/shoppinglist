@@ -1,7 +1,10 @@
 <svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="192" height="192" rx="40" fill="#111827"/>
-  <rect x="38" y="46" width="116" height="108" rx="18" fill="#F8FAFC"/>
-  <path d="M61 69H131" stroke="#111827" stroke-width="10" stroke-linecap="round"/>
-  <path d="M72 96H120" stroke="#334155" stroke-width="8" stroke-linecap="round"/>
-  <path d="M72 118H108" stroke="#334155" stroke-width="8" stroke-linecap="round"/>
+  <!-- Background -->
+  <rect width="192" height="192" rx="40" fill="#059669"/>
+  <!-- Shopping bag body -->
+  <path d="M46 78a8 8 0 0 1 8-8h84a8 8 0 0 1 8 8v72a16 16 0 0 1-16 16H62a16 16 0 0 1-16-16V78Z" fill="#fff" fill-opacity="0.95"/>
+  <!-- Bag handle -->
+  <path d="M72 70V56a24 24 0 0 1 48 0v14" stroke="#fff" stroke-opacity="0.95" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <!-- Checkmark -->
+  <path d="M72 112l14 14 34-34" stroke="#059669" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
