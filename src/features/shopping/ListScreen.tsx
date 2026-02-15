@@ -55,91 +55,97 @@ function ItemRow({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.92, x: -30 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className={`group relative flex items-center gap-3 rounded-2xl px-4 py-3.5 transition-colors ${
+      className={`group relative flex items-center rounded-2xl transition-colors ${
         item.checked
           ? 'bg-[var(--muted)]/60'
           : 'bg-[var(--card)] shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
       }`}
     >
-      {/* Checkbox */}
-      <div className="relative flex-shrink-0">
-        <motion.button
-          type="button"
-          role="checkbox"
-          aria-checked={item.checked}
-          onClick={handleToggle}
-          animate={justChecked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
-            item.checked
-              ? 'border-[var(--check-green)] bg-[var(--check-green)]'
-              : 'border-[var(--border)] bg-transparent hover:border-[var(--check-green)]/50'
-          }`}
-        >
+      {/* Tappable area: checkbox + text */}
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={item.checked}
+        onClick={handleToggle}
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-2xl px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+      >
+        {/* Checkbox visual */}
+        <div className="relative flex-shrink-0">
+          <motion.span
+            aria-hidden
+            animate={justChecked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
+              item.checked
+                ? 'border-[var(--check-green)] bg-[var(--check-green)]'
+                : 'border-[var(--border)] bg-transparent group-hover:border-[var(--check-green)]/50'
+            }`}
+          >
+            <AnimatePresence>
+              {item.checked && (
+                <motion.svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <motion.path
+                    d="M5 12l5 5L20 7"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                  />
+                </motion.svg>
+              )}
+            </AnimatePresence>
+          </motion.span>
+
+          {/* Ripple ring */}
           <AnimatePresence>
-            {item.checked && (
-              <motion.svg
-                viewBox="0 0 24 24"
-                className="h-4 w-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+            {ripple && (
+              <motion.span
+                key="ripple"
+                className="pointer-events-none absolute inset-0 rounded-full border-2 border-[var(--check-green)]"
+                initial={{ scale: 1, opacity: 0.7 }}
+                animate={{ scale: 2.4, opacity: 0 }}
                 exit={{ opacity: 0 }}
-              >
-                <motion.path
-                  d="M5 12l5 5L20 7"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth={3}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                />
-              </motion.svg>
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              />
             )}
           </AnimatePresence>
-        </motion.button>
+        </div>
 
-        {/* Ripple ring */}
-        <AnimatePresence>
-          {ripple && (
+        {/* Item text */}
+        <span className="relative min-w-0 flex-1 select-none text-left text-[15px] leading-snug">
+          <span className={item.checked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'}>
+            {item.text}
+          </span>
+          {item.checked && (
             <motion.span
-              key="ripple"
-              className="pointer-events-none absolute inset-0 rounded-full border-2 border-[var(--check-green)]"
-              initial={{ scale: 1, opacity: 0.7 }}
-              animate={{ scale: 2.4, opacity: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            />
+              className="absolute inset-y-0 left-0 flex items-center"
+              style={{ width: '100%' }}
+            >
+              <span
+                className="block h-[1.5px] w-full bg-[var(--muted-foreground)]/40"
+                style={{ animation: 'strikethrough-sweep 0.3s ease-out forwards' }}
+              />
+            </motion.span>
           )}
-        </AnimatePresence>
-      </div>
-
-      {/* Item text */}
-      <span className="relative min-w-0 flex-1 select-none text-[15px] leading-snug">
-        <span className={item.checked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'}>
-          {item.text}
         </span>
-        {item.checked && (
-          <motion.span
-            className="absolute inset-y-0 left-0 flex items-center"
-            style={{ width: '100%' }}
-          >
-            <span
-              className="block h-[1.5px] w-full bg-[var(--muted-foreground)]/40"
-              style={{ animation: 'strikethrough-sweep 0.3s ease-out forwards' }}
-            />
-          </motion.span>
-        )}
-      </span>
+      </button>
 
       {/* Delete button */}
       <motion.button
         type="button"
         onClick={() => onRemove(item.id)}
         aria-label={deleteLabel}
-        className="delete-btn flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)] group-hover:opacity-100 focus-visible:opacity-100"
+        className="delete-btn mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)] group-hover:opacity-100 focus-visible:opacity-100"
         whileTap={{ scale: 0.85 }}
       >
         <X className="h-4 w-4" />
