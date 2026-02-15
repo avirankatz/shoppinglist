@@ -107,17 +107,26 @@ export function useShoppingApp() {
   const [authUser, setAuthUser] = useState<User | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
 
+  const urlJoinCode = useMemo(() => {
+    const query = new URLSearchParams(window.location.search)
+    return query.get('join')?.toUpperCase() || ''
+  }, [])
+
   const restoredSession = useMemo(() => parseStoredSession(), [])
-  const [activeList, setActiveList] = useState<ShoppingList | null>(
-    restoredSession
+  const [activeList, setActiveList] = useState<ShoppingList | null>(() => {
+    // If URL has a join code that differs from current session, don't restore — let user join the new list
+    if (urlJoinCode && restoredSession && restoredSession.inviteCode.toUpperCase() !== urlJoinCode) {
+      return null
+    }
+    return restoredSession
       ? {
           id: restoredSession.listId,
           name: restoredSession.listName,
           invite_code: restoredSession.inviteCode,
           owner_id: '',
         }
-      : null,
-  )
+      : null
+  })
   const [items, setItems] = useState<ShoppingItem[]>([])
   const [memberCount, setMemberCount] = useState(1)
   const [isOnline, setIsOnline] = useState(navigator.onLine)
@@ -159,16 +168,21 @@ export function useShoppingApp() {
     }
   }, [])
 
+  // Pre-fill join code from URL
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search)
-    const prefixedJoin = query.get('join')
-    if (!prefixedJoin) {
+    if (!urlJoinCode) {
       return
     }
-
     setMode('join')
-    setJoinCode(prefixedJoin.toUpperCase())
-  }, [])
+    setJoinCode(urlJoinCode)
+    // Clean the URL so refreshing won't re-trigger join
+    const cleanUrl = new URL(window.location.href)
+    cleanUrl.searchParams.delete('join')
+    window.history.replaceState({}, '', cleanUrl.toString())
+  }, [urlJoinCode])
+
+  // Auto-join effect is placed after handleJoin definition (below)
+  const autoJoinAttemptedRef = useRef(false)
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -556,6 +570,18 @@ export function useShoppingApp() {
     const joined = data[0] as ShoppingList
     setActiveList(joined)
   }, [isOnline, joinCode, t, userName])
+
+  // Auto-join when arriving via invite link and auth is ready
+  useEffect(() => {
+    if (!urlJoinCode || autoJoinAttemptedRef.current) {
+      return
+    }
+    if (authLoading || !authUser || activeList) {
+      return
+    }
+    autoJoinAttemptedRef.current = true
+    void handleJoin()
+  }, [urlJoinCode, authLoading, authUser, activeList, handleJoin])
 
   const addItem = useCallback(async () => {
     if (!supabase || !activeList) {
