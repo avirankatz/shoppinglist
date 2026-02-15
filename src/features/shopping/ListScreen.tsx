@@ -342,8 +342,8 @@ export const ListScreen = memo(function ListScreen({
     if (!newItemText.trim()) return
     onAddItem()
     if (navigator.vibrate) navigator.vibrate(15)
-    // Keep focus on input for quick successive adds
-    inputRef.current?.focus()
+    // Dismiss keyboard on mobile after adding
+    inputRef.current?.blur()
   }, [newItemText, onAddItem])
 
   const uncheckedCount = sortedItems.filter((i) => !i.checked).length
