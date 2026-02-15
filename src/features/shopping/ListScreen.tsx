@@ -8,7 +8,6 @@ import {
   MoreHorizontal,
   Plus,
   PenLine,
-  Share2,
   Smartphone,
   Users,
   X,
@@ -244,10 +243,6 @@ function SettingsPanel({
             <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" onClick={() => onCopy(inviteLink, 'link')}>
               <Link2 className="h-3.5 w-3.5" />
               {copied === 'link' ? t.copied : t.copyLink}
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" onClick={() => onCopy(inviteLink, 'share')}>
-              <Share2 className="h-3.5 w-3.5" />
-              {copied === 'share' ? t.linkCopied : t.share}
             </Button>
           </div>
         </div>
