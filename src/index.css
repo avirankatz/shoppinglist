@@ -62,3 +62,10 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Show delete button on touch devices (no hover capability) */
+@media (hover: none) {
+  .delete-btn {
+    opacity: 0.45;
+  }
+}

@@ -178,7 +178,7 @@ function ItemRow({
         type="button"
         onClick={() => onRemove(item.id)}
         aria-label={deleteLabel}
-        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)] group-hover:opacity-100 focus-visible:opacity-100"
+        className="delete-btn flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)] group-hover:opacity-100 focus-visible:opacity-100"
         whileTap={{ scale: 0.85 }}
       >
         <X className="h-4 w-4" />
