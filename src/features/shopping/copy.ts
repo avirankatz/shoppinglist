@@ -9,7 +9,7 @@ export const textByLanguage = {
   en: {
     appTitle: 'Family Shopping List',
     createDescription:
-      'Create a family list or join with an invite code. Data syncs through the cloud backend in real time.',
+      'Create a family list or join with an invite code. Data syncs through the cloud in real time.',
     createTab: 'Create',
     joinTab: 'Join',
     language: 'עברית',
@@ -23,7 +23,7 @@ export const textByLanguage = {
     joinButton: 'Join Family List',
     joinFallbackListName: 'Family Shopping List',
     welcome: 'Welcome',
-    syncDescription: 'This list syncs via Supabase in real time.',
+    syncDescription: 'This list syncs via the cloud in real time.',
     youOnly: 'You only',
     membersConnected: 'members',
     cloud: 'Cloud sync',
@@ -59,7 +59,7 @@ export const textByLanguage = {
   he: {
     appTitle: 'רשימת קניות משפחתית',
     createDescription:
-      'צרו רשימה משפחתית חדשה או הצטרפו עם קוד הזמנה. הנתונים מסונכרנים דרך Supabase בזמן אמת.',
+      'צרו רשימה משפחתית חדשה או הצטרפו עם קוד הזמנה. הנתונים מסונכרנים דרך הענן בזמן אמת.',
     createTab: 'יצירה',
     joinTab: 'הצטרפות',
     language: 'English',
@@ -73,7 +73,7 @@ export const textByLanguage = {
     joinButton: 'הצטרפות לרשימה משפחתית',
     joinFallbackListName: 'רשימת קניות משפחתית',
     welcome: 'שלום',
-    syncDescription: 'הרשימה מסונכרנת בזמן אמת דרך Supabase.',
+    syncDescription: 'הרשימה מסונכרנת בזמן אמת דרך הענן.',
     youOnly: 'רק את/ה',
     membersConnected: 'חברים',
     cloud: 'סנכרון ענן',
