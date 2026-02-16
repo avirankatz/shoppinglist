@@ -22,7 +22,15 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'pwa-192.svg', 'pwa-512.svg', 'pwa-maskable-192.svg', 'pwa-maskable-512.svg'],
+      includeAssets: [
+        'favicon.svg',
+        'apple-touch-icon.svg',
+        'safari-pinned-tab.svg',
+        'pwa-192.svg',
+        'pwa-512.svg',
+        'pwa-maskable-192.svg',
+        'pwa-maskable-512.svg',
+      ],
       manifest: {
         name: 'Family Shopping List',
         short_name: 'Shop List',

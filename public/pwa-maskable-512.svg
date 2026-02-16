@@ -1,12 +1,15 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Maskable icon: content fits within the 80% safe zone (inner 409.6px circle) -->
-  <!-- Safe area inset: 51.2px on each side -->
-  <!-- Background fills entire canvas for adaptive icon clipping -->
-  <rect width="512" height="512" fill="#059669"/>
-  <!-- Shopping bag body — inset for safe zone -->
-  <path d="M152 232a18 18 0 0 1 18-18h172a18 18 0 0 1 18 18v148a34 34 0 0 1-34 34H186a34 34 0 0 1-34-34V232Z" fill="#fff" fill-opacity="0.95"/>
-  <!-- Bag handle -->
-  <path d="M210 214V184a46 46 0 0 1 92 0v30" stroke="#fff" stroke-opacity="0.95" stroke-width="14" stroke-linecap="round" fill="none"/>
-  <!-- Checkmark -->
-  <path d="M212 310l30 30 72-72" stroke="#059669" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="bg" x1="44" y1="24" x2="468" y2="488" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0EA5A3"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <path d="M152 232a18 18 0 0 1 18-18h172a18 18 0 0 1 18 18v148a34 34 0 0 1-34 34H186a34 34 0 0 1-34-34V232Z" fill="#fff"/>
+  <path d="M210 214v-32a46 46 0 1 1 92 0v32" stroke="#ECFEFF" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="212" cy="309" r="15" fill="#F97316"/>
+  <circle cx="256" cy="298" r="15" fill="#84CC16"/>
+  <circle cx="300" cy="309" r="15" fill="#F43F5E"/>
+  <path d="M154 164c44-28 122-28 166 0" stroke="#D1FAE5" stroke-opacity="0.45" stroke-width="10" stroke-linecap="round"/>
 </svg>

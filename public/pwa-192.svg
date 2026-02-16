@@ -1,10 +1,15 @@
 <svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="192" height="192" rx="40" fill="#059669"/>
-  <!-- Shopping bag body -->
-  <path d="M46 78a8 8 0 0 1 8-8h84a8 8 0 0 1 8 8v72a16 16 0 0 1-16 16H62a16 16 0 0 1-16-16V78Z" fill="#fff" fill-opacity="0.95"/>
-  <!-- Bag handle -->
-  <path d="M72 70V56a24 24 0 0 1 48 0v14" stroke="#fff" stroke-opacity="0.95" stroke-width="7" stroke-linecap="round" fill="none"/>
-  <!-- Checkmark -->
-  <path d="M72 112l14 14 34-34" stroke="#059669" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="bg" x1="20" y1="10" x2="172" y2="182" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0EA5A3"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#bg)"/>
+  <path d="M45 74a8 8 0 0 1 8-8h86a8 8 0 0 1 8 8v74a17 17 0 0 1-17 17H62a17 17 0 0 1-17-17V74Z" fill="#fff"/>
+  <path d="M72 66V54a24 24 0 1 1 48 0v12" stroke="#ECFEFF" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="73" cy="106" r="7.5" fill="#F97316"/>
+  <circle cx="96" cy="100" r="7.5" fill="#84CC16"/>
+  <circle cx="119" cy="106" r="7.5" fill="#F43F5E"/>
+  <path d="M46 52c26-17 74-17 100 0" stroke="#D1FAE5" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round"/>
 </svg>
