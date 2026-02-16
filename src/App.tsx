@@ -2,11 +2,9 @@ import { AnimatePresence } from 'framer-motion'
 import { ListScreen } from './features/shopping/ListScreen'
 import { OnboardingScreen } from './features/shopping/OnboardingScreen'
 import { useShoppingApp } from './features/shopping/useShoppingApp'
-import { useKeyboardAwareFocus } from './hooks/useKeyboardAware'
 
 function App() {
   const vm = useShoppingApp()
-  useKeyboardAwareFocus()
 
   if (!vm.hasSupabaseConfig) {
     return (
