@@ -1,5 +1,10 @@
 import { useEffect } from 'react'
 
+// Delay to wait for keyboard animation on mobile devices
+// Android Chrome and iOS Safari both animate the keyboard appearance
+// which takes approximately 250-350ms. We use 300ms as a safe middle ground.
+const KEYBOARD_ANIMATION_DELAY = 300
+
 /**
  * Hook that ensures input fields are properly scrolled into view when the keyboard appears.
  * This prevents the keyboard from overlapping input fields on mobile devices.
@@ -22,25 +27,20 @@ export function useKeyboardAwareFocus(): void {
       // Use a small delay to ensure the keyboard animation has started
       // This delay is critical for Android Chrome which animates the keyboard
       setTimeout(() => {
-        // First, try using scrollIntoViewIfNeeded (Safari/WebKit)
-        if ('scrollIntoViewIfNeeded' in target && typeof target.scrollIntoViewIfNeeded === 'function') {
-          target.scrollIntoViewIfNeeded(true)
-        } else {
-          // Fallback to standard scrollIntoView
-          // Using 'center' ensures the input is well-positioned in the visible area
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'nearest'
-          })
-        }
+        // Scroll input into view using the standard API
+        // Using 'center' ensures the input is well-positioned in the visible area
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        })
         
         // Additional scroll adjustment for very small viewports
         // This helps when the keyboard takes up a large portion of the screen
         if (window.visualViewport && window.visualViewport.height < 400) {
           window.scrollBy(0, -50)
         }
-      }, 300)
+      }, KEYBOARD_ANIMATION_DELAY)
     }
 
     // Listen to focus events on the entire document
