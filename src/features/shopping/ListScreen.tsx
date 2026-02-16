@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { memo, useCallback, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Check,
   Copy,
@@ -19,6 +19,8 @@ import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import type { CopyText } from './copy'
 import type { ShoppingItem, ShoppingList } from './types'
+
+const SUPPORT_PROMPT_STORAGE_PREFIX = 'family-shopping:support-prompt:'
 
 /* ---------- Single item row ---------- */
 
@@ -315,7 +317,13 @@ export const ListScreen = memo(function ListScreen({
   const buyMeCoffeeUrl = import.meta.env.VITE_BUY_ME_COFFEE_URL || 'https://buymeacoffee.com'
   const [showSettings, setShowSettings] = useState(false)
   const [installDismissed, setInstallDismissed] = useState(false)
+  const [supportPromptDismissed, setSupportPromptDismissed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const supportPromptStorageKey = useMemo(
+    () => `${SUPPORT_PROMPT_STORAGE_PREFIX}${activeList.id}`,
+    [activeList.id],
+  )
 
   const handleAddItem = useCallback(() => {
     if (!newItemText.trim()) return
@@ -327,6 +335,24 @@ export const ListScreen = memo(function ListScreen({
 
   const uncheckedCount = sortedItems.filter((i) => !i.checked).length
   const checkedCount = sortedItems.length - uncheckedCount
+  const shouldPromptForSupport =
+    sortedItems.length >= 5 && checkedCount >= 3 && !supportPromptDismissed
+
+  useEffect(() => {
+    const current = localStorage.getItem(supportPromptStorageKey)
+    setSupportPromptDismissed(current === 'dismissed' || current === 'supported')
+  }, [supportPromptStorageKey])
+
+  const dismissSupportPrompt = useCallback(() => {
+    setSupportPromptDismissed(true)
+    localStorage.setItem(supportPromptStorageKey, 'dismissed')
+  }, [supportPromptStorageKey])
+
+  const supportWithCoffee = useCallback(() => {
+    setSupportPromptDismissed(true)
+    localStorage.setItem(supportPromptStorageKey, 'supported')
+    window.open(buyMeCoffeeUrl, '_blank', 'noopener,noreferrer')
+  }, [buyMeCoffeeUrl, supportPromptStorageKey])
 
   return (
     <motion.div
@@ -432,6 +458,51 @@ export const ListScreen = memo(function ListScreen({
                     type="button"
                     onClick={() => setInstallDismissed(true)}
                     className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--muted)] transition-colors"
+                    aria-label="Dismiss"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {shouldPromptForSupport && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginBottom: 12 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-start gap-3 rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 px-4 py-3.5">
+                  <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+                    <Coffee className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold leading-tight">{t.coffeePromptTitle}</p>
+                    <p className="mt-0.5 text-xs leading-snug text-[var(--muted-foreground)]">
+                      {t.coffeePromptDescription}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button size="sm" className="rounded-xl" onClick={supportWithCoffee}>
+                        {t.buyMeCoffee}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-xl"
+                        onClick={dismissSupportPrompt}
+                      >
+                        {t.coffeePromptLater}
+                      </Button>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={dismissSupportPrompt}
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]"
                     aria-label="Dismiss"
                   >
                     <X className="h-3.5 w-3.5" />
