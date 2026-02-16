@@ -502,7 +502,7 @@ export const ListScreen = memo(function ListScreen({
               if (e.key === 'Enter') handleAddItem()
             }}
             placeholder={t.addItemPlaceholder}
-            className="h-12 flex-1 rounded-2xl border-[var(--border)] bg-[var(--muted)] px-4 text-[15px] placeholder:text-[var(--muted-foreground)]/60"
+            className="h-12 flex-1 rounded-2xl border-[var(--border)] bg-[var(--muted)] px-4 placeholder:text-[var(--muted-foreground)]/60"
           />
           <motion.button
             type="button"
