@@ -69,3 +69,25 @@ body {
     opacity: 0.45;
   }
 }
+
+/* Ensure inputs are not hidden behind keyboard on mobile */
+@supports (-webkit-touch-callout: none) {
+  /* iOS specific fixes */
+  input,
+  textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* Fix for Android keyboard overlap */
+@media screen and (max-width: 768px) {
+  /* Ensure the viewport resizes when keyboard appears */
+  html {
+    height: -webkit-fill-available;
+  }
+  
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+}
