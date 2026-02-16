@@ -20,17 +20,31 @@ export function useKeyboardAwareFocus(): void {
       }
 
       // Use a small delay to ensure the keyboard animation has started
+      // This delay is critical for Android Chrome which animates the keyboard
       setTimeout(() => {
-        // Scroll the input into view, accounting for the keyboard
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'nearest'
-        })
+        // First, try using scrollIntoViewIfNeeded (Safari/WebKit)
+        if ('scrollIntoViewIfNeeded' in target && typeof target.scrollIntoViewIfNeeded === 'function') {
+          target.scrollIntoViewIfNeeded(true)
+        } else {
+          // Fallback to standard scrollIntoView
+          // Using 'center' ensures the input is well-positioned in the visible area
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest'
+          })
+        }
+        
+        // Additional scroll adjustment for very small viewports
+        // This helps when the keyboard takes up a large portion of the screen
+        if (window.visualViewport && window.visualViewport.height < 400) {
+          window.scrollBy(0, -50)
+        }
       }, 300)
     }
 
     // Listen to focus events on the entire document
+    // Use capture phase to ensure we catch all events
     document.addEventListener('focusin', handleFocus, true)
 
     return () => {

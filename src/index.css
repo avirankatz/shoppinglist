@@ -33,6 +33,9 @@ body,
 #root {
   min-height: 100%;
   height: 100%;
+  /* Support for dynamic viewport height with keyboard */
+  min-height: 100dvh;
+  height: 100dvh;
 }
 
 body {
@@ -41,6 +44,8 @@ body {
   background: var(--background);
   font-family: 'Outfit', ui-sans-serif, -apple-system, BlinkMacSystemFont,
     'Segoe UI', sans-serif;
+  /* Prevent overscroll issues on mobile */
+  overscroll-behavior: none;
 }
 
 @keyframes strikethrough-sweep {
