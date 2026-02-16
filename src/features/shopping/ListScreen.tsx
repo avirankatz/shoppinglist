@@ -4,6 +4,7 @@ import {
   Check,
   Copy,
   Download,
+  Coffee,
   Link2,
   LogOut,
   MoreHorizontal,
@@ -158,6 +159,7 @@ function ItemRow({
 
 function SettingsPanel({
   t,
+  buyMeCoffeeUrl,
   activeList,
   copied,
   inviteLink,
@@ -172,6 +174,7 @@ function SettingsPanel({
   onLeaveList,
 }: {
   t: CopyText
+  buyMeCoffeeUrl: string
   activeList: ShoppingList
   copied: string
   inviteLink: string
@@ -185,6 +188,10 @@ function SettingsPanel({
   onInstall: () => void
   onLeaveList: () => void
 }) {
+  const handleBuyMeCoffee = () => {
+    window.open(buyMeCoffeeUrl, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <motion.div
       initial={{ height: 0, opacity: 0 }}
@@ -236,6 +243,10 @@ function SettingsPanel({
 
         {/* Actions row */}
         <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" onClick={handleBuyMeCoffee}>
+            <Coffee className="h-3.5 w-3.5" />
+            {t.buyMeCoffee}
+          </Button>
           {installVisible && (
             <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" onClick={onInstall}>
               <Smartphone className="h-3.5 w-3.5" />
@@ -301,6 +312,7 @@ export const ListScreen = memo(function ListScreen({
   onInstall,
   onLeaveList,
 }: ListScreenProps) {
+  const buyMeCoffeeUrl = import.meta.env.VITE_BUY_ME_COFFEE_URL || 'https://buymeacoffee.com'
   const [showSettings, setShowSettings] = useState(false)
   const [installDismissed, setInstallDismissed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -367,6 +379,7 @@ export const ListScreen = memo(function ListScreen({
         {showSettings && (
           <SettingsPanel
             t={t}
+            buyMeCoffeeUrl={buyMeCoffeeUrl}
             activeList={activeList}
             copied={copied}
             inviteLink={inviteLink}
