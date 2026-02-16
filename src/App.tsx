@@ -8,7 +8,7 @@ function App() {
 
   if (!vm.hasSupabaseConfig) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-6">
+      <main className="safe-area-inset flex min-h-[100dvh] items-center justify-center p-6">
         <div className="w-full max-w-md rounded-3xl bg-[var(--card)] p-8 text-center shadow-[0_2px_20px_rgba(0,0,0,0.06)]">
           <h1 className="text-xl font-bold">{vm.t.appTitle}</h1>
           <p className="mt-2 text-sm text-[var(--muted-foreground)]">{vm.t.missingEnv}</p>
@@ -19,7 +19,7 @@ function App() {
 
   if (vm.authLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-6">
+      <main className="safe-area-inset flex min-h-[100dvh] items-center justify-center p-6">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
           <p className="text-sm font-medium text-[var(--muted-foreground)]">{vm.t.loading}</p>
@@ -29,7 +29,7 @@ function App() {
   }
 
   return (
-    <main dir={vm.isRtl ? 'rtl' : 'ltr'}>
+    <main dir={vm.isRtl ? 'rtl' : 'ltr'} className="safe-area-x">
       <AnimatePresence mode="wait">
         {vm.activeList ? (
           <ListScreen
@@ -56,7 +56,7 @@ function App() {
             onLeaveList={vm.onLeaveList}
           />
         ) : (
-          <div className="flex min-h-[100dvh] items-center justify-center px-4 py-8">
+          <div className="safe-area-top safe-area-bottom flex min-h-[100dvh] items-center justify-center px-4 py-8">
             <OnboardingScreen
               t={vm.t}
               mode={vm.mode}

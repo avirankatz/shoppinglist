@@ -337,7 +337,10 @@ export const ListScreen = memo(function ListScreen({
       className="flex h-[100dvh] flex-col"
     >
       {/* ───── Header ───── */}
-      <header className="relative z-10 border-b bg-[var(--card)] shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      <header
+        className="relative z-10 border-b bg-[var(--card)] shadow-[0_1px_3px_rgba(0,0,0,0.03)]"
+        style={{ paddingTop: 'var(--safe-area-top)' }}
+      >
         <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
           {/* List icon + name */}
           <div className="flex min-w-0 flex-1 items-center gap-2.5">
