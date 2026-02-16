@@ -489,11 +489,11 @@ export const ListScreen = memo(function ListScreen({
       </div>
 
       {/* ───── Bottom input bar ───── */}
-      <div
-        className="border-t bg-[var(--card)] shadow-[0_-2px_10px_rgba(0,0,0,0.04)]"
-        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)' }}
-      >
-        <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 pt-3">
+      <div className="border-t bg-[var(--card)] shadow-[0_-2px_10px_rgba(0,0,0,0.04)]">
+        <div 
+          className="mx-auto flex max-w-2xl items-center gap-2 px-4 pt-3"
+          style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)' }}
+        >
           <Input
             ref={inputRef}
             value={newItemText}
