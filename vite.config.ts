@@ -24,8 +24,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'pwa-192.svg', 'pwa-512.svg', 'pwa-maskable-192.svg', 'pwa-maskable-512.svg'],
       manifest: {
-        name: 'Family Shopping List',
-        short_name: 'Shop List',
+        name: 'Shopping List',
+        short_name: 'Shopping List',
         description: 'Family shopping list – shared in real time',
         theme_color: '#059669',
         background_color: '#faf9f6',
