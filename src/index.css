@@ -22,10 +22,15 @@
   --destructive-foreground: #ffffff;
   --radius: 1rem;
   --check-green: #10b981;
+  --strikethrough-clip-from: inset(0 100% 0 0);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[dir='rtl'] {
+  --strikethrough-clip-from: inset(0 0 0 100%);
 }
 
 * {
@@ -69,7 +74,7 @@ body {
 
 @keyframes strikethrough-sweep {
   from {
-    clip-path: inset(0 100% 0 0);
+    clip-path: var(--strikethrough-clip-from);
   }
   to {
     clip-path: inset(0 0 0 0);
