@@ -110,17 +110,19 @@ export const OnboardingScreen = memo(function OnboardingScreen({
           </div>
 
           {/* List name */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              {mode === 'create' ? t.familyListName : t.listNameOptional}
-            </label>
-            <Input
-              value={listName}
-              onChange={(e) => setListName(e.target.value)}
-              placeholder={t.listNamePlaceholder}
-              className="h-11 rounded-xl"
-            />
-          </div>
+          {mode === 'create' && (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">
+                {t.familyListName}
+              </label>
+              <Input
+                value={listName}
+                onChange={(e) => setListName(e.target.value)}
+                placeholder={t.listNamePlaceholder}
+                className="h-11 rounded-xl"
+              />
+            </div>
+          )}
 
           {/* Join code */}
           {mode === 'join' && (
