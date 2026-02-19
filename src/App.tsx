@@ -50,6 +50,7 @@ function App() {
             onCopy={vm.onCopy}
             onAddItem={vm.onAddItem}
             onToggleItem={vm.onToggleItem}
+            onEditItem={vm.onEditItem}
             onRemoveItem={vm.onRemoveItem}
             onRenameList={vm.onRenameList}
             onInstall={vm.onInstall}

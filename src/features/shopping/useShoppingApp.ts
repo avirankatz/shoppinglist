@@ -13,6 +13,7 @@ type CachedListState = {
 type PendingOperation =
   | { type: 'add'; text: string; checked: boolean }
   | { type: 'toggle'; itemId: string; checked: boolean }
+  | { type: 'edit'; itemId: string; text: string }
   | { type: 'remove'; itemId: string }
   | { type: 'rename'; name: string }
 
@@ -285,6 +286,20 @@ export function useShoppingApp() {
           continue
         }
         const { error } = await supabase.from('shopping_items').delete().eq('id', operation.itemId)
+        if (error) {
+          remaining.push(operation)
+          break
+        }
+      }
+
+      if (operation.type === 'edit') {
+        if (operation.itemId.startsWith('local-')) {
+          continue
+        }
+        const { error } = await supabase
+          .from('shopping_items')
+          .update({ text: operation.text })
+          .eq('id', operation.itemId)
         if (error) {
           remaining.push(operation)
           break
@@ -683,6 +698,45 @@ export function useShoppingApp() {
     [activeList, isOnline, loadListState, t],
   )
 
+  const editItem = useCallback(
+    async (id: string, text: string) => {
+      if (!supabase || !activeList) {
+        return
+      }
+
+      const trimmed = text.trim()
+      if (!trimmed) {
+        return
+      }
+
+      const now = new Date().toISOString()
+      setItems((current) =>
+        current.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                text: trimmed,
+                updated_at: now,
+              }
+            : item,
+        ),
+      )
+
+      if (!isOnline || id.startsWith('local-')) {
+        enqueueOperation(activeList.id, { type: 'edit', itemId: id, text: trimmed })
+        setErrorText(t.offlineQueued)
+        return
+      }
+
+      const { error } = await supabase.from('shopping_items').update({ text: trimmed }).eq('id', id)
+      if (error) {
+        setErrorText(t.saveFailed)
+        await loadListState(activeList.id)
+      }
+    },
+    [activeList, isOnline, loadListState, t],
+  )
+
   const renameList = useCallback(async () => {
     if (!supabase || !activeList) {
       return
@@ -784,6 +838,7 @@ export function useShoppingApp() {
     onCopy: copyToClipboard,
     onAddItem: addItem,
     onToggleItem: toggleItem,
+    onEditItem: editItem,
     onRemoveItem: removeItem,
     onRenameList: renameList,
     onInstall: requestInstall,

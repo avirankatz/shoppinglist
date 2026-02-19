@@ -27,18 +27,42 @@ const SUPPORT_PROMPT_STORAGE_PREFIX = 'family-shopping:support-prompt:'
 function ItemRow({
   item,
   onToggle,
+  onEdit,
   onRemove,
+  editLabel,
   deleteLabel,
+  saveLabel,
+  cancelLabel,
 }: {
   item: ShoppingItem
   onToggle: (item: ShoppingItem) => void
+  onEdit: (id: string, text: string) => void
   onRemove: (id: string) => void
+  editLabel: string
   deleteLabel: string
+  saveLabel: string
+  cancelLabel: string
 }) {
   const [ripple, setRipple] = useState(false)
   const [justChecked, setJustChecked] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState(item.text)
+  const [isPressing, setIsPressing] = useState(false)
+  const longPressTimeoutRef = useRef<number | null>(null)
+  const longPressTriggeredRef = useRef(false)
+
+  useEffect(() => {
+    if (!isEditing) {
+      setEditText(item.text)
+    }
+  }, [isEditing, item.text])
 
   const handleToggle = () => {
+    if (isEditing || longPressTriggeredRef.current) {
+      longPressTriggeredRef.current = false
+      return
+    }
+
     if (!item.checked) {
       setRipple(true)
       setJustChecked(true)
@@ -51,108 +75,220 @@ function ItemRow({
     onToggle(item)
   }
 
+  const handleSave = () => {
+    const trimmed = editText.trim()
+    if (!trimmed) {
+      return
+    }
+
+    if (trimmed !== item.text) {
+      onEdit(item.id, trimmed)
+    }
+    setIsEditing(false)
+  }
+
+  const clearLongPressTimeout = () => {
+    if (longPressTimeoutRef.current) {
+      window.clearTimeout(longPressTimeoutRef.current)
+      longPressTimeoutRef.current = null
+    }
+  }
+
+  const startLongPress = () => {
+    if (isEditing) {
+      return
+    }
+    clearLongPressTimeout()
+    longPressTriggeredRef.current = false
+    setIsPressing(true)
+    longPressTimeoutRef.current = window.setTimeout(() => {
+      longPressTriggeredRef.current = true
+      setIsPressing(false)
+      setEditText(item.text)
+      setIsEditing(true)
+      if (navigator.vibrate) navigator.vibrate(20)
+    }, 450)
+  }
+
+  const endLongPress = () => {
+    setIsPressing(false)
+    clearLongPressTimeout()
+  }
+
+  useEffect(() => {
+    return () => clearLongPressTimeout()
+  }, [])
+
   return (
     <motion.div
       layout="position"
       initial={{ opacity: 0, y: 16, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        scale: isPressing && !isEditing ? 1.018 : 1,
+      }}
       exit={{ opacity: 0, scale: 0.92, x: -30 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className={`group relative flex items-center rounded-2xl transition-colors ${
         item.checked
           ? 'bg-[var(--muted)]/60'
           : 'bg-[var(--card)] shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
-      }`}
+      } ${isPressing && !isEditing ? 'shadow-[0_6px_18px_rgba(0,0,0,0.10)]' : ''}`}
     >
-      {/* Tappable area: checkbox + text */}
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={item.checked}
-        onClick={handleToggle}
-        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-2xl px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-      >
-        {/* Checkbox visual */}
-        <div className="relative flex-shrink-0">
-          <motion.span
-            aria-hidden
-            animate={justChecked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
-              item.checked
-                ? 'border-[var(--check-green)] bg-[var(--check-green)]'
-                : 'border-[var(--border)] bg-transparent group-hover:border-[var(--check-green)]/50'
-            }`}
+      {isEditing ? (
+        <div className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2.5">
+          <Input
+            autoFocus
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSave()
+              }
+              if (e.key === 'Escape') {
+                setEditText(item.text)
+                setIsEditing(false)
+              }
+            }}
+            className="h-10 rounded-xl bg-[var(--muted)]"
+          />
+          <motion.button
+            type="button"
+            onClick={handleSave}
+            aria-label={saveLabel}
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-all hover:bg-[var(--check-green)]/10 hover:text-[var(--check-green)]"
+            whileTap={{ scale: 0.85 }}
+            disabled={!editText.trim()}
           >
-            <AnimatePresence>
-              {item.checked && (
-                <motion.svg
-                  viewBox="0 0 24 24"
-                  className="h-4 w-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <motion.path
-                    d="M5 12l5 5L20 7"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth={3}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                  />
-                </motion.svg>
-              )}
-            </AnimatePresence>
-          </motion.span>
-
-          {/* Ripple ring */}
-          <AnimatePresence>
-            {ripple && (
-              <motion.span
-                key="ripple"
-                className="pointer-events-none absolute inset-0 rounded-full border-2 border-[var(--check-green)]"
-                initial={{ scale: 1, opacity: 0.7 }}
-                animate={{ scale: 2.4, opacity: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              />
-            )}
-          </AnimatePresence>
+            <Check className="h-4 w-4" />
+          </motion.button>
+          <motion.button
+            type="button"
+            onClick={() => {
+              setEditText(item.text)
+              setIsEditing(false)
+            }}
+            aria-label={cancelLabel}
+            className="mr-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-all hover:bg-[var(--muted)]"
+            whileTap={{ scale: 0.85 }}
+          >
+            <X className="h-4 w-4" />
+          </motion.button>
         </div>
+      ) : (
+        <>
+          {/* Tappable area: checkbox + text */}
+          <button
+            type="button"
+            role="checkbox"
+            aria-checked={item.checked}
+            onClick={handleToggle}
+            onPointerDown={startLongPress}
+            onPointerUp={endLongPress}
+            onPointerCancel={endLongPress}
+            onPointerLeave={endLongPress}
+            onContextMenu={(e) => e.preventDefault()}
+            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-2xl px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            {/* Checkbox visual */}
+            <div className="relative flex-shrink-0">
+              <motion.span
+                aria-hidden
+                animate={justChecked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
+                  item.checked
+                    ? 'border-[var(--check-green)] bg-[var(--check-green)]'
+                    : isPressing
+                      ? 'border-[var(--primary)]/45 bg-[var(--primary)]/5'
+                      : 'border-[var(--border)] bg-transparent group-hover:border-[var(--check-green)]/50'
+                }`}
+              >
+                <AnimatePresence>
+                  {item.checked && (
+                    <motion.svg
+                      viewBox="0 0 24 24"
+                      className="h-4 w-4"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <motion.path
+                        d="M5 12l5 5L20 7"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth={3}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                      />
+                    </motion.svg>
+                  )}
+                </AnimatePresence>
+              </motion.span>
 
-        {/* Item text */}
-        <span className="relative min-w-0 flex-1 select-none text-start text-[15px] leading-snug">
-          <span className={item.checked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'}>
-            {item.text}
-          </span>
-          {item.checked && (
-            <motion.span
-              className="absolute inset-y-0 left-0 flex items-center"
-              style={{ width: '100%' }}
-            >
-              <span
-                className="block h-[1.5px] w-full bg-[var(--muted-foreground)]/40"
-                style={{ animation: 'strikethrough-sweep 0.3s ease-out forwards' }}
-              />
-            </motion.span>
-          )}
-        </span>
-      </button>
+              {/* Ripple ring */}
+              <AnimatePresence>
+                {ripple && (
+                  <motion.span
+                    key="ripple"
+                    className="pointer-events-none absolute inset-0 rounded-full border-2 border-[var(--check-green)]"
+                    initial={{ scale: 1, opacity: 0.7 }}
+                    animate={{ scale: 2.4, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                  />
+                )}
+              </AnimatePresence>
+            </div>
 
-      {/* Delete button */}
-      <motion.button
-        type="button"
-        onClick={() => onRemove(item.id)}
-        aria-label={deleteLabel}
-        className="delete-btn mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)] group-hover:opacity-100 focus-visible:opacity-100"
-        whileTap={{ scale: 0.85 }}
-      >
-        <X className="h-4 w-4" />
-      </motion.button>
+            {/* Item text */}
+            <span className="relative min-w-0 flex-1 select-none text-start text-[15px] leading-snug">
+              <span className={item.checked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'}>
+                {item.text}
+              </span>
+              {item.checked && (
+                <motion.span
+                  className="absolute inset-y-0 left-0 flex items-center"
+                  style={{ width: '100%' }}
+                >
+                  <span
+                    className="block h-[1.5px] w-full bg-[var(--muted-foreground)]/40"
+                    style={{ animation: 'strikethrough-sweep 0.3s ease-out forwards' }}
+                  />
+                </motion.span>
+              )}
+            </span>
+          </button>
+
+          <motion.button
+            type="button"
+            onClick={() => {
+              setEditText(item.text)
+              setIsEditing(true)
+            }}
+            aria-label={editLabel}
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--muted)] group-hover:opacity-100 focus-visible:opacity-100"
+            whileTap={{ scale: 0.85 }}
+          >
+            <PenLine className="h-4 w-4" />
+          </motion.button>
+
+          {/* Delete button */}
+          <motion.button
+            type="button"
+            onClick={() => onRemove(item.id)}
+            aria-label={deleteLabel}
+            className="delete-btn mr-2 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)] group-hover:opacity-100 focus-visible:opacity-100"
+            whileTap={{ scale: 0.85 }}
+          >
+            <X className="h-4 w-4" />
+          </motion.button>
+        </>
+      )}
     </motion.div>
   )
 }
@@ -285,6 +421,7 @@ type ListScreenProps = {
   onCopy: (value: string, key: string) => void
   onAddItem: () => void
   onToggleItem: (item: ShoppingItem) => void
+  onEditItem: (id: string, text: string) => void
   onRemoveItem: (id: string) => void
   onRenameList: () => void
   onInstall: () => void
@@ -309,6 +446,7 @@ export const ListScreen = memo(function ListScreen({
   onCopy,
   onAddItem,
   onToggleItem,
+  onEditItem,
   onRemoveItem,
   onRenameList,
   onInstall,
@@ -533,8 +671,12 @@ export const ListScreen = memo(function ListScreen({
                       key={item.id}
                       item={item}
                       onToggle={onToggleItem}
+                      onEdit={onEditItem}
                       onRemove={onRemoveItem}
+                      editLabel={t.editItem}
                       deleteLabel={t.deleteItem}
+                      saveLabel={t.saveItemEdit}
+                      cancelLabel={t.cancelItemEdit}
                     />
                   ))}
 
@@ -565,8 +707,12 @@ export const ListScreen = memo(function ListScreen({
                       key={item.id}
                       item={item}
                       onToggle={onToggleItem}
+                      onEdit={onEditItem}
                       onRemove={onRemoveItem}
+                      editLabel={t.editItem}
                       deleteLabel={t.deleteItem}
+                      saveLabel={t.saveItemEdit}
+                      cancelLabel={t.cancelItemEdit}
                     />
                   ))}
               </AnimatePresence>
