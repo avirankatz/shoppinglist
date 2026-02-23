@@ -35,7 +35,7 @@ export const makeVM = (
   showAuthRetry: false,
   activeList: MOCK_LIST,
   peerLabel: "You only",
-  copied: null,
+  copied: "",
   inviteLink: "http://localhost/?join=ABCD-EFGH-IJKL",
   sortedItems: [],
   newItemText: "",
