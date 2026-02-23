@@ -22,7 +22,7 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'pwa-192.svg', 'pwa-512.svg', 'pwa-maskable-192.svg', 'pwa-maskable-512.svg'],
+      includeAssets: ['favicon.svg', 'og-image.png', 'pwa-192.svg', 'pwa-512.svg', 'pwa-maskable-192.svg', 'pwa-maskable-512.svg'],
       manifest: {
         name: 'Shopping List',
         short_name: 'Shopping List',
