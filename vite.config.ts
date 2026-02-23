@@ -1,71 +1,87 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import { VitePWA } from 'vite-plugin-pwa'
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { VitePWA } from "vite-plugin-pwa";
 
-const repositoryName = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? ''
-const isUserOrOrgPagesRepo = repositoryName.endsWith('.github.io')
+const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
+const isUserOrOrgPagesRepo = repositoryName.endsWith(".github.io");
 const pagesBase =
-  process.env.GITHUB_ACTIONS === 'true' && repositoryName && !isUserOrOrgPagesRepo
+  process.env.GITHUB_ACTIONS === "true" &&
+  repositoryName &&
+  !isUserOrOrgPagesRepo
     ? `/${repositoryName}/`
-    : '/'
+    : "/";
 
 // https://vite.dev/config/
 export default defineConfig({
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setup.ts"],
+    exclude: ["**/node_modules/**", "**/artifacts/**"],
+  },
+
   base: pagesBase,
   plugins: [
     tailwindcss(),
     react({
       babel: {
-        plugins: [['babel-plugin-react-compiler']],
+        plugins: [["babel-plugin-react-compiler"]],
       },
     }),
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'og-image.png', 'pwa-192.svg', 'pwa-512.svg', 'pwa-maskable-192.svg', 'pwa-maskable-512.svg'],
+      registerType: "autoUpdate",
+      includeAssets: [
+        "favicon.svg",
+        "og-image.png",
+        "pwa-192.svg",
+        "pwa-512.svg",
+        "pwa-maskable-192.svg",
+        "pwa-maskable-512.svg",
+      ],
       manifest: {
-        name: 'Shopping List',
-        short_name: 'Shopping List',
-        description: 'Family shopping list – shared in real time',
-        theme_color: '#059669',
-        background_color: '#faf9f6',
-        display: 'standalone',
+        name: "Shopping List",
+        short_name: "Shopping List",
+        description: "Family shopping list – shared in real time",
+        theme_color: "#059669",
+        background_color: "#faf9f6",
+        display: "standalone",
         start_url: pagesBase,
         scope: pagesBase,
         icons: [
           {
-            src: 'pwa-192.svg',
-            sizes: '192x192',
-            type: 'image/svg+xml',
-            purpose: 'any',
+            src: "pwa-192.svg",
+            sizes: "192x192",
+            type: "image/svg+xml",
+            purpose: "any",
           },
           {
-            src: 'pwa-512.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml',
-            purpose: 'any',
+            src: "pwa-512.svg",
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "any",
           },
           {
-            src: 'pwa-maskable-192.svg',
-            sizes: '192x192',
-            type: 'image/svg+xml',
-            purpose: 'maskable',
+            src: "pwa-maskable-192.svg",
+            sizes: "192x192",
+            type: "image/svg+xml",
+            purpose: "maskable",
           },
           {
-            src: 'pwa-maskable-512.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml',
-            purpose: 'maskable',
+            src: "pwa-maskable-512.svg",
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "maskable",
           },
         ],
       },
       workbox: {
-        cacheId: 'family-shopping-v2',
+        cacheId: "family-shopping-v2",
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
       },
     }),
   ],
-})
+});
