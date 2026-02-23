@@ -5,6 +5,7 @@ import {
   Copy,
   Download,
   Coffee,
+  GripVertical,
   Link2,
   LogOut,
   MoreHorizontal,
@@ -15,6 +16,8 @@ import {
   X,
   ShoppingBag,
 } from 'lucide-react'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import type { DraggableProvidedDragHandleProps, DropResult } from '@hello-pangea/dnd'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import type { CopyText } from './copy'
@@ -29,7 +32,9 @@ function ItemRow({
   onToggle,
   onEdit,
   onRemove,
-  editLabel,
+  isDraggable = false,
+  dragHandleProps,
+  isDragging = false,
   deleteLabel,
   saveLabel,
   cancelLabel,
@@ -38,7 +43,9 @@ function ItemRow({
   onToggle: (item: ShoppingItem) => void
   onEdit: (id: string, text: string) => void
   onRemove: (id: string) => void
-  editLabel: string
+  isDraggable?: boolean
+  dragHandleProps?: DraggableProvidedDragHandleProps | null
+  isDragging?: boolean
   deleteLabel: string
   saveLabel: string
   cancelLabel: string
@@ -47,9 +54,6 @@ function ItemRow({
   const [justChecked, setJustChecked] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(item.text)
-  const [isPressing, setIsPressing] = useState(false)
-  const longPressTimeoutRef = useRef<number | null>(null)
-  const longPressTriggeredRef = useRef(false)
 
   useEffect(() => {
     if (!isEditing) {
@@ -58,11 +62,7 @@ function ItemRow({
   }, [isEditing, item.text])
 
   const handleToggle = () => {
-    if (isEditing || longPressTriggeredRef.current) {
-      longPressTriggeredRef.current = false
-      return
-    }
-
+    if (isEditing) return
     if (!item.checked) {
       setRipple(true)
       setJustChecked(true)
@@ -80,61 +80,24 @@ function ItemRow({
     if (!trimmed) {
       return
     }
-
     if (trimmed !== item.text) {
       onEdit(item.id, trimmed)
     }
     setIsEditing(false)
   }
 
-  const clearLongPressTimeout = () => {
-    if (longPressTimeoutRef.current) {
-      window.clearTimeout(longPressTimeoutRef.current)
-      longPressTimeoutRef.current = null
-    }
-  }
-
-  const startLongPress = () => {
-    if (isEditing) {
-      return
-    }
-    clearLongPressTimeout()
-    longPressTriggeredRef.current = false
-    setIsPressing(true)
-    longPressTimeoutRef.current = window.setTimeout(() => {
-      longPressTriggeredRef.current = true
-      setIsPressing(false)
-      setEditText(item.text)
-      setIsEditing(true)
-      if (navigator.vibrate) navigator.vibrate(20)
-    }, 450)
-  }
-
-  const endLongPress = () => {
-    setIsPressing(false)
-    clearLongPressTimeout()
-  }
-
-  useEffect(() => {
-    return () => clearLongPressTimeout()
-  }, [])
-
   return (
     <motion.div
-      layout="position"
+      layout={isDragging ? false : 'position'}
       initial={{ opacity: 0, y: 16, scale: 0.97 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        scale: isPressing && !isEditing ? 1.018 : 1,
-      }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.92, x: -30 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className={`group relative flex items-center rounded-2xl transition-colors ${
         item.checked
           ? 'bg-[var(--muted)]/60'
           : 'bg-[var(--card)] shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
-      } ${isPressing && !isEditing ? 'shadow-[0_6px_18px_rgba(0,0,0,0.10)]' : ''}`}
+      }${isDragging ? ' shadow-[0_8px_24px_rgba(0,0,0,0.14)]' : ''}`}
     >
       {isEditing ? (
         <div className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2.5">
@@ -178,21 +141,28 @@ function ItemRow({
         </div>
       ) : (
         <>
-          {/* Tappable area: checkbox + text */}
+          {/* Drag handle — only rendered for unchecked/draggable items */}
+          {isDraggable && (
+            <div
+              {...dragHandleProps}
+              className="flex h-full flex-shrink-0 touch-none select-none cursor-grab items-center pl-3 pr-1 text-[var(--muted-foreground)]/30 active:cursor-grabbing"
+            >
+              <GripVertical className="h-4 w-4" />
+            </div>
+          )}
+
+          {/* Checkbox tap area — intentionally larger than the checkbox itself */}
           <button
             type="button"
             role="checkbox"
             aria-checked={item.checked}
             onClick={handleToggle}
-            onPointerDown={startLongPress}
-            onPointerUp={endLongPress}
-            onPointerCancel={endLongPress}
-            onPointerLeave={endLongPress}
             onContextMenu={(e) => e.preventDefault()}
-            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-2xl px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className={`flex flex-shrink-0 items-center justify-center py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--ring)] ${
+              isDraggable ? 'pl-2 pr-2' : 'pl-4 pr-2'
+            }`}
           >
-            {/* Checkbox visual */}
-            <div className="relative flex-shrink-0">
+            <div className="relative">
               <motion.span
                 aria-hidden
                 animate={justChecked ? { scale: [1, 1.35, 1] } : { scale: 1 }}
@@ -200,9 +170,7 @@ function ItemRow({
                 className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
                   item.checked
                     ? 'border-[var(--check-green)] bg-[var(--check-green)]'
-                    : isPressing
-                      ? 'border-[var(--primary)]/45 bg-[var(--primary)]/5'
-                      : 'border-[var(--border)] bg-transparent group-hover:border-[var(--check-green)]/50'
+                    : 'border-[var(--border)] bg-transparent group-hover:border-[var(--check-green)]/50'
                 }`}
               >
                 <AnimatePresence>
@@ -244,9 +212,22 @@ function ItemRow({
                 )}
               </AnimatePresence>
             </div>
+          </button>
 
-            {/* Item text */}
-            <span className="relative min-w-0 flex-1 select-none text-start text-[15px] leading-snug">
+          {/* Text area — tap to open inline editor */}
+          <button
+            type="button"
+            onClick={() => {
+              if (!item.checked) {
+                setEditText(item.text)
+                setIsEditing(true)
+              }
+            }}
+            className={`flex min-w-0 flex-1 items-center py-3.5 pr-3 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--ring)] ${
+              !item.checked ? 'cursor-pointer active:opacity-60' : 'cursor-default'
+            }`}
+          >
+            <span className="relative min-w-0 flex-1 select-none text-[15px] leading-snug">
               <span className={item.checked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'}>
                 {item.text}
               </span>
@@ -263,19 +244,6 @@ function ItemRow({
               )}
             </span>
           </button>
-
-          <motion.button
-            type="button"
-            onClick={() => {
-              setEditText(item.text)
-              setIsEditing(true)
-            }}
-            aria-label={editLabel}
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--muted)] group-hover:opacity-100 focus-visible:opacity-100"
-            whileTap={{ scale: 0.85 }}
-          >
-            <PenLine className="h-4 w-4" />
-          </motion.button>
 
           {/* Delete button */}
           <motion.button
@@ -426,6 +394,7 @@ type ListScreenProps = {
   onRenameList: () => void
   onInstall: () => void
   onLeaveList: () => void
+  onReorderItems: (sourceIndex: number, destinationIndex: number) => void
 }
 
 export const ListScreen = memo(function ListScreen({
@@ -451,6 +420,7 @@ export const ListScreen = memo(function ListScreen({
   onRenameList,
   onInstall,
   onLeaveList,
+  onReorderItems,
 }: ListScreenProps) {
   const buyMeCoffeeUrl = import.meta.env.VITE_BUY_ME_COFFEE_URL || 'https://buymeacoffee.com'
   const [showSettings, setShowSettings] = useState(false)
@@ -662,25 +632,51 @@ export const ListScreen = memo(function ListScreen({
               <p className="text-sm font-medium text-[var(--muted-foreground)]">{t.noItems}</p>
             </motion.div>
           ) : (
-            <motion.div layout className="flex flex-col gap-2">
-              <AnimatePresence mode="popLayout">
-                {sortedItems
-                  .filter((i) => !i.checked)
-                  .map((item) => (
-                    <ItemRow
-                      key={item.id}
-                      item={item}
-                      onToggle={onToggleItem}
-                      onEdit={onEditItem}
-                      onRemove={onRemoveItem}
-                      editLabel={t.editItem}
-                      deleteLabel={t.deleteItem}
-                      saveLabel={t.saveItemEdit}
-                      cancelLabel={t.cancelItemEdit}
-                    />
-                  ))}
+            <div className="flex flex-col gap-2">
+              {/* Unchecked items — draggable */}
+              <DragDropContext
+                onDragEnd={(result: DropResult) => {
+                  if (!result.destination) return
+                  onReorderItems(result.source.index, result.destination.index)
+                }}
+              >
+                <Droppable droppableId="shopping-items">
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="flex flex-col gap-2"
+                    >
+                      {sortedItems
+                        .filter((i) => !i.checked)
+                        .map((item, index) => (
+                          <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div ref={provided.innerRef} {...provided.draggableProps}>
+                                <ItemRow
+                                  item={item}
+                                  isDraggable
+                                  dragHandleProps={provided.dragHandleProps}
+                                  isDragging={snapshot.isDragging}
+                                  onToggle={onToggleItem}
+                                  onEdit={onEditItem}
+                                  onRemove={onRemoveItem}
+                                  deleteLabel={t.deleteItem}
+                                  saveLabel={t.saveItemEdit}
+                                  cancelLabel={t.cancelItemEdit}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
 
-                {/* Checked section divider */}
+              {/* Checked section divider */}
+              <AnimatePresence>
                 {checkedCount > 0 && (
                   <motion.div
                     key="__checked-divider"
@@ -699,7 +695,10 @@ export const ListScreen = memo(function ListScreen({
                     <div className="h-px flex-1 bg-[var(--border)]" />
                   </motion.div>
                 )}
+              </AnimatePresence>
 
+              {/* Checked items */}
+              <AnimatePresence mode="popLayout">
                 {sortedItems
                   .filter((i) => i.checked)
                   .map((item) => (
@@ -709,14 +708,13 @@ export const ListScreen = memo(function ListScreen({
                       onToggle={onToggleItem}
                       onEdit={onEditItem}
                       onRemove={onRemoveItem}
-                      editLabel={t.editItem}
                       deleteLabel={t.deleteItem}
                       saveLabel={t.saveItemEdit}
                       cancelLabel={t.cancelItemEdit}
                     />
                   ))}
               </AnimatePresence>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>

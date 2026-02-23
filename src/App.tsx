@@ -55,6 +55,7 @@ function App() {
             onRenameList={vm.onRenameList}
             onInstall={vm.onInstall}
             onLeaveList={vm.onLeaveList}
+            onReorderItems={vm.onReorderItems}
           />
         ) : (
           <div className="safe-area-top safe-area-bottom flex min-h-[100dvh] items-center justify-center px-4 py-8">

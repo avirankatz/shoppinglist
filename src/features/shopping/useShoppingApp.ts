@@ -27,6 +27,7 @@ const STORAGE_LANG = 'family-shopping:lang'
 const STORAGE_NAME = 'family-shopping:name'
 const STORAGE_CACHE_PREFIX = 'family-shopping:cache:'
 const STORAGE_QUEUE_PREFIX = 'family-shopping:queue:'
+export const PERSONAL_ORDER_STORAGE_PREFIX = 'family-shopping:order:'
 
 const parseJson = <T,>(raw: string | null): T | null => {
   if (!raw) {
@@ -145,6 +146,7 @@ export function useShoppingApp() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isPending, startTransition] = useTransition()
   const [authRetryTick, setAuthRetryTick] = useState(0)
+  const [localOrder, setLocalOrder] = useState<string[]>([])
 
   const channelRef = useRef<RealtimeChannel | null>(null)
   const t = textByLanguage[language]
@@ -373,6 +375,7 @@ export function useShoppingApp() {
 
   useEffect(() => {
     if (!activeList?.id) {
+      setLocalOrder([])
       return
     }
     const cached = getCachedState(activeList.id)
@@ -381,6 +384,8 @@ export function useShoppingApp() {
       setMemberCount(cached.memberCount)
       setActiveList(cached.list)
     }
+    const savedOrder = localStorage.getItem(`${PERSONAL_ORDER_STORAGE_PREFIX}${activeList.id}`)
+    setLocalOrder(parseJson<string[]>(savedOrder) ?? [])
   }, [activeList?.id])
 
   useEffect(() => {
@@ -453,16 +458,27 @@ export function useShoppingApp() {
     void flushPendingOperations()
   }, [flushPendingOperations, isOnline])
 
-  const sortedItems = useMemo(
-    () =>
-      [...items].sort((left, right) => {
-        if (left.checked !== right.checked) {
-          return Number(left.checked) - Number(right.checked)
-        }
-        return new Date(right.updated_at).getTime() - new Date(left.updated_at).getTime()
-      }),
-    [items],
-  )
+  const sortedItems = useMemo(() => {
+    const unchecked = items.filter((i) => !i.checked)
+    const checked = items.filter((i) => i.checked)
+
+    const orderedUnchecked = [...unchecked].sort((a, b) => {
+      const aIdx = localOrder.indexOf(a.id)
+      const bIdx = localOrder.indexOf(b.id)
+      // Items not yet in the saved order (newly added) float to the front
+      if (aIdx === -1 && bIdx === -1)
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      if (aIdx === -1) return -1
+      if (bIdx === -1) return 1
+      return aIdx - bIdx
+    })
+
+    const sortedChecked = [...checked].sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    )
+
+    return [...orderedUnchecked, ...sortedChecked]
+  }, [items, localOrder])
 
   const inviteLink = useMemo(() => {
     if (!activeList) {
@@ -776,6 +792,22 @@ export function useShoppingApp() {
     })
   }, [])
 
+  const reorderItems = useCallback(
+    (sourceIndex: number, destinationIndex: number) => {
+      if (sourceIndex === destinationIndex || !activeList) return
+      const uncheckedItems = sortedItems.filter((i) => !i.checked)
+      const newOrder = uncheckedItems.map((i) => i.id)
+      const [removed] = newOrder.splice(sourceIndex, 1)
+      newOrder.splice(destinationIndex, 0, removed)
+      setLocalOrder(newOrder)
+      localStorage.setItem(
+        `${PERSONAL_ORDER_STORAGE_PREFIX}${activeList.id}`,
+        JSON.stringify(newOrder),
+      )
+    },
+    [activeList, sortedItems],
+  )
+
   const requestInstall = useCallback(async () => {
     if (!installPrompt) {
       return
@@ -843,5 +875,6 @@ export function useShoppingApp() {
     onRenameList: renameList,
     onInstall: requestInstall,
     onLeaveList: resetApp,
+    onReorderItems: reorderItems,
   }
 }
