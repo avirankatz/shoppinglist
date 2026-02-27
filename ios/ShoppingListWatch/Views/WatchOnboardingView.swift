@@ -20,7 +20,6 @@ struct WatchOnboardingView: View {
                         Text("Create").tag(Mode.create)
                         Text("Join").tag(Mode.join)
                     }
-                    .pickerStyle(.segmented)
 
                     if mode == .create {
                         TextField("List name", text: $viewModel.listName)

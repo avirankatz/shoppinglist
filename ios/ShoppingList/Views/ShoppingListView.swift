@@ -37,6 +37,7 @@ struct ShoppingListView: View {
                                 Image(systemName: "basket")
                                     .font(.largeTitle)
                                     .foregroundStyle(.secondary)
+                                    .symbolEffect(.pulse, options: .nonRepeating, value: viewModel.items.isEmpty)
                                 Text("No items yet.\nAdd your first item above.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
@@ -52,7 +53,7 @@ struct ShoppingListView: View {
                 .refreshable {
                     await viewModel.refreshData()
                 }
-                .animation(.default, value: viewModel.items)
+                .animation(.spring(response: 0.4, dampingFraction: 0.75), value: viewModel.items)
             }
             .navigationTitle(viewModel.activeList?.name ?? "Shopping List")
             .navigationBarTitleDisplayMode(.large)
@@ -102,6 +103,8 @@ struct ShoppingListView: View {
                 Image(systemName: "plus.circle.fill")
                     .font(.title2)
                     .foregroundStyle(.green)
+                    .scaleEffect(viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty ? 1.0 : 1.1)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
             }
             .disabled(viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
         }

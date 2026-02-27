@@ -7,6 +7,10 @@ options:
   xcodeVersion: "15.0"
   generateEmptyDirectories: true
 
+configFiles:
+  Debug: Configs/Supabase.xcconfig
+  Release: Configs/Supabase.xcconfig
+
 packages:
   Supabase:
     url: https://github.com/supabase/supabase-swift
