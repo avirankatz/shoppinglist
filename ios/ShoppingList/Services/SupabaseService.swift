@@ -89,6 +89,16 @@ final class SupabaseService {
 
     // MARK: - Item Operations
 
+    private struct NewItem: Encodable {
+        let list_id: String
+        let text: String
+        let checked: Bool
+    }
+
+    private struct CheckedUpdate: Encodable {
+        let checked: Bool
+    }
+
     func fetchItems(listId: String) async throws -> [ShoppingItem] {
         try await client
             .from("shopping_items")
@@ -102,7 +112,7 @@ final class SupabaseService {
     func addItem(listId: String, text: String) async throws -> ShoppingItem {
         let item: [ShoppingItem] = try await client
             .from("shopping_items")
-            .insert(["list_id": listId, "text": text, "checked": "false"])
+            .insert(NewItem(list_id: listId, text: text, checked: false))
             .select()
             .execute()
             .value
@@ -116,7 +126,7 @@ final class SupabaseService {
     func toggleItem(id: String, checked: Bool) async throws {
         try await client
             .from("shopping_items")
-            .update(["checked": String(checked)])
+            .update(CheckedUpdate(checked: checked))
             .eq("id", value: id)
             .execute()
     }
