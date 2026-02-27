@@ -36,14 +36,10 @@ struct WatchListView: View {
                 }
 
                 ToolbarItem(placement: .topBarLeading) {
-                    Menu {
-                        Button(role: .destructive) {
-                            viewModel.leaveList()
-                        } label: {
-                            Label("Leave List", systemImage: "rectangle.portrait.and.arrow.right")
-                        }
+                    Button(role: .destructive) {
+                        viewModel.leaveList()
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
                     }
                 }
             }
