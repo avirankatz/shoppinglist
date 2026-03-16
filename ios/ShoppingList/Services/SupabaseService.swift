@@ -147,6 +147,23 @@ final class SupabaseService {
             .execute()
     }
 
+    func clearCheckedItems(listId: String) async throws {
+        try await client
+            .from("shopping_items")
+            .delete()
+            .eq("list_id", value: listId)
+            .eq("checked", value: true)
+            .execute()
+    }
+
+    func uncheckAllItems(listId: String) async throws {
+        try await client
+            .from("shopping_items")
+            .update(["checked": false])
+            .eq("list_id", value: listId)
+            .execute()
+    }
+
     // MARK: - Members
 
     func fetchMemberCount(listId: String) async throws -> Int {

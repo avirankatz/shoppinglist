@@ -39,7 +39,7 @@ final class ShoppingViewModel: ObservableObject {
     }
 
     var uncheckedItems: [ShoppingItem] {
-        items.filter { !$0.checked }.sorted { $0.updatedAt > $1.updatedAt }
+        items.filter { !$0.checked }
     }
 
     var checkedItems: [ShoppingItem] {
@@ -265,6 +265,37 @@ final class ShoppingViewModel: ObservableObject {
             items.append(removedItem)
             errorMessage = "Could not delete item."
         }
+    }
+
+    func clearCompleted() async {
+        guard let listId = activeList?.id else { return }
+        let removed = items.filter { $0.checked }
+        items.removeAll { $0.checked }
+        do {
+            try await service.clearCheckedItems(listId: listId)
+        } catch {
+            items.append(contentsOf: removed)
+            errorMessage = "Could not clear completed items."
+        }
+    }
+
+    func uncheckAll() async {
+        guard activeList != nil else { return }
+        let previous = items
+        for i in items.indices { items[i].checked = false }
+        do {
+            try await service.uncheckAllItems(listId: activeList!.id)
+        } catch {
+            items = previous
+            errorMessage = "Could not reset list."
+        }
+    }
+
+    func moveUncheckedItem(from source: IndexSet, to destination: Int) {
+        var unchecked = items.filter { !$0.checked }
+        let checked = items.filter { $0.checked }
+        unchecked.move(fromOffsets: source, toOffset: destination)
+        items = unchecked + checked
     }
 
     func renameList(_ newName: String) async {

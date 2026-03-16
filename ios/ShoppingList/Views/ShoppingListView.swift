@@ -19,7 +19,9 @@ struct ShoppingListView: View {
                                     insertion: .move(edge: .top).combined(with: .opacity),
                                     removal: .move(edge: .bottom).combined(with: .opacity)
                                 ))
+                                .deleteDisabled(true)
                         }
+                        .onMove { viewModel.moveUncheckedItem(from: $0, to: $1) }
                     } header: {
                         Text("Items")
                             .textCase(nil)
@@ -38,6 +40,8 @@ struct ShoppingListView: View {
                                     insertion: .move(edge: .top).combined(with: .opacity),
                                     removal: .move(edge: .top).combined(with: .opacity)
                                 ))
+                                .deleteDisabled(true)
+                                .moveDisabled(true)
                         }
                     } header: {
                         Text("Completed")
@@ -65,6 +69,8 @@ struct ShoppingListView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .scrollDismissesKeyboard(.immediately)
+            .environment(\.editMode, .constant(.active))
             .refreshable {
                 await viewModel.refreshData()
             }
@@ -82,6 +88,25 @@ struct ShoppingListView: View {
                     } label: {
                         Image(systemName: "gearshape")
                     }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        if !viewModel.checkedItems.isEmpty {
+                            Button(role: .destructive) {
+                                Task { await viewModel.clearCompleted() }
+                            } label: {
+                                Label("Clear Completed", systemImage: "trash")
+                            }
+                            Button {
+                                Task { await viewModel.uncheckAll() }
+                            } label: {
+                                Label("Uncheck All", systemImage: "arrow.counterclockwise")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .disabled(viewModel.checkedItems.isEmpty)
                 }
             }
             .sheet(isPresented: $showSettings) {
@@ -118,13 +143,18 @@ struct ShoppingListView: View {
                 Task { await viewModel.addItem() }
                 isAddFieldFocused = true
             } label: {
-                Image(systemName: "plus.circle.fill")
-                    .font(.title2)
-                    .foregroundStyle(.green)
-                    .opacity(viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty ? 0.35 : 1.0)
-                    .scaleEffect(viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty ? 1.0 : 1.1)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
+                let isEmpty = viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty
+                Image(systemName: "plus")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(Color.green.opacity(isEmpty ? 0.3 : 1.0))
+                            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isEmpty)
+                    )
             }
+            .buttonStyle(.plain)
             .disabled(viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .padding(.horizontal, 16)
