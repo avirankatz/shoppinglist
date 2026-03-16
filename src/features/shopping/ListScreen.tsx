@@ -6,7 +6,9 @@ import {
   Download,
   MoreHorizontal,
   Plus,
+  RotateCcw,
   ShoppingBag,
+  Trash2,
   Users,
   X,
 } from "lucide-react";
@@ -33,6 +35,8 @@ export const ListScreen = memo(function ListScreen() {
     onAddItem,
     onInstall,
     onReorderItems,
+    onRemoveAllDoneItems,
+    onRestoreAllDoneItems,
   } = useShoppingContext();
 
   const buyMeCoffeeUrl =
@@ -301,6 +305,22 @@ export const ListScreen = memo(function ListScreen() {
                       {checkedCount}
                     </span>
                     <div className="h-px flex-1 bg-[var(--border)]" />
+                    <button
+                      type="button"
+                      title={t.restoreDoneItemsTitle}
+                      onClick={() => void onRestoreAllDoneItems()}
+                      className="flex h-6 w-6 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      title={t.clearDoneItemsTitle}
+                      onClick={() => void onRemoveAllDoneItems()}
+                      className="flex h-6 w-6 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
