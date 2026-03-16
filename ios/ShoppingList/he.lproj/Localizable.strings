@@ -1,0 +1,56 @@
+/* Onboarding */
+"Family Shopping List" = "רשימת קניות משפחתית";
+"Create a family list or join with an invite code. Syncs in real time." = "צרו רשימה משפחתית או הצטרפו עם קוד הזמנה. מסתנכרן בזמן אמת.";
+"Mode" = "מצב";
+"Create" = "צור";
+"Join" = "הצטרף";
+"Your name (optional)" = "שמך (אופציונלי)";
+"Family list name" = "שם הרשימה המשפחתית";
+"Invite code" = "קוד הזמנה";
+"Create Family List" = "צור רשימה משפחתית";
+"Join Family List" = "הצטרף לרשימה משפחתית";
+
+/* Shopping List */
+"Shopping List" = "רשימת קניות";
+"Items" = "פריטים";
+"Completed" = "הושלם";
+"No items yet.\nType below to add your first item." = "עדיין אין פריטים.\nהקלידו למטה להוספת הפריט הראשון.";
+"Clear Completed" = "נקה הושלם";
+"Uncheck All" = "בטל סימון לכולם";
+"Add an item..." = "הוסף פריט...";
+
+/* Item Row */
+"Delete" = "מחק";
+"Edit" = "ערוך";
+"Item name" = "שם הפריט";
+"Save" = "שמור";
+"Cancel" = "ביטול";
+
+/* Settings */
+"Settings" = "הגדרות";
+"Done" = "סיום";
+"Sharing" = "שיתוף";
+"Invite Code" = "קוד הזמנה";
+"Share this code with family members so they can join your list." = "שתפו את הקוד הזה עם בני המשפחה כדי שיצטרפו לרשימה.";
+"Copied!" = "הועתק!";
+"Copy Code" = "העתק קוד";
+"Share Invite" = "שתף הזמנה";
+"Rename List" = "שנה שם רשימה";
+"New list name" = "שם רשימה חדש";
+"Rename" = "שנה שם";
+"Info" = "מידע";
+"Members" = "חברים";
+"Sync" = "סנכרון";
+"Real-time" = "בזמן אמת";
+"Leave List" = "עזוב רשימה";
+
+/* Errors */
+"Error" = "שגיאה";
+"OK" = "אישור";
+
+/* Members (ViewModel) */
+"You only" = "רק אתה";
+"%d members" = "%d חברים";
+
+/* Share message: arg1=list name, arg2=invite code */
+"share_invite" = "הצטרפו לרשימת הקניות שלי \"%@\" עם הקוד: %@";

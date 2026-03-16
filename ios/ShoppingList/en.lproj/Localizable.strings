@@ -1,0 +1,56 @@
+/* Onboarding */
+"Family Shopping List" = "Family Shopping List";
+"Create a family list or join with an invite code. Syncs in real time." = "Create a family list or join with an invite code. Syncs in real time.";
+"Mode" = "Mode";
+"Create" = "Create";
+"Join" = "Join";
+"Your name (optional)" = "Your name (optional)";
+"Family list name" = "Family list name";
+"Invite code" = "Invite code";
+"Create Family List" = "Create Family List";
+"Join Family List" = "Join Family List";
+
+/* Shopping List */
+"Shopping List" = "Shopping List";
+"Items" = "Items";
+"Completed" = "Completed";
+"No items yet.\nType below to add your first item." = "No items yet.\nType below to add your first item.";
+"Clear Completed" = "Clear Completed";
+"Uncheck All" = "Uncheck All";
+"Add an item..." = "Add an item...";
+
+/* Item Row */
+"Delete" = "Delete";
+"Edit" = "Edit";
+"Item name" = "Item name";
+"Save" = "Save";
+"Cancel" = "Cancel";
+
+/* Settings */
+"Settings" = "Settings";
+"Done" = "Done";
+"Sharing" = "Sharing";
+"Invite Code" = "Invite Code";
+"Share this code with family members so they can join your list." = "Share this code with family members so they can join your list.";
+"Copied!" = "Copied!";
+"Copy Code" = "Copy Code";
+"Share Invite" = "Share Invite";
+"Rename List" = "Rename List";
+"New list name" = "New list name";
+"Rename" = "Rename";
+"Info" = "Info";
+"Members" = "Members";
+"Sync" = "Sync";
+"Real-time" = "Real-time";
+"Leave List" = "Leave List";
+
+/* Errors */
+"Error" = "Error";
+"OK" = "OK";
+
+/* Members (ViewModel) */
+"You only" = "You only";
+"%d members" = "%d members";
+
+/* Share message: arg1=list name, arg2=invite code */
+"share_invite" = "Join my shopping list \"%@\" with code: %@";

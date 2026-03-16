@@ -1,0 +1,24 @@
+/* Onboarding */
+"Shopping List" = "רשימת קניות";
+"Mode" = "מצב";
+"Create" = "צור";
+"Join" = "הצטרף";
+"List name" = "שם הרשימה";
+"Invite code" = "קוד הזמנה";
+
+/* List */
+"List" = "רשימה";
+"No items yet" = "עדיין אין פריטים";
+"Done" = "סיום";
+
+/* Add Item */
+"Add Item" = "הוסף פריט";
+"New item" = "פריט חדש";
+"Add" = "הוסף";
+
+/* Item Row */
+"Delete" = "מחק";
+
+/* Members (ViewModel) */
+"You only" = "רק אתה";
+"%d members" = "%d חברים";

@@ -41,7 +41,7 @@ struct SettingsView: View {
 
                     if let list = viewModel.activeList {
                         ShareLink(
-                            item: "Join my shopping list \"\(list.name)\" with code: \(list.inviteCode)"
+                            item: String(format: NSLocalizedString("share_invite", comment: ""), list.name, list.inviteCode)
                         ) {
                             Label("Share Invite", systemImage: "square.and.arrow.up")
                         }

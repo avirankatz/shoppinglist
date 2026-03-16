@@ -87,7 +87,7 @@ struct OnboardingView: View {
                                 ProgressView()
                                     .tint(.white)
                             } else {
-                                Text(mode == .create ? "Create Family List" : "Join Family List")
+                                Text(LocalizedStringKey(mode == .create ? "Create Family List" : "Join Family List"))
                             }
                         }
                         .frame(maxWidth: .infinity)

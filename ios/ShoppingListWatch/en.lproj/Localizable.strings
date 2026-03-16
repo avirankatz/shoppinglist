@@ -1,0 +1,24 @@
+/* Onboarding */
+"Shopping List" = "Shopping List";
+"Mode" = "Mode";
+"Create" = "Create";
+"Join" = "Join";
+"List name" = "List name";
+"Invite code" = "Invite code";
+
+/* List */
+"List" = "List";
+"No items yet" = "No items yet";
+"Done" = "Done";
+
+/* Add Item */
+"Add Item" = "Add Item";
+"New item" = "New item";
+"Add" = "Add";
+
+/* Item Row */
+"Delete" = "Delete";
+
+/* Members (ViewModel) */
+"You only" = "You only";
+"%d members" = "%d members";

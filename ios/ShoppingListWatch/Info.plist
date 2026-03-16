@@ -23,6 +23,6 @@
 	<key>SUPABASE_URL</key>
 	<string>$(SUPABASE_URL)</string>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.shoppinglist.ios</string>
+	<string>com.avirankatz.shoppinglist</string>
 </dict>
 </plist>

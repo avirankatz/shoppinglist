@@ -44,7 +44,11 @@ final class ShoppingViewModel: ObservableObject {
     }
 
     var memberLabel: String {
-        memberCount <= 1 ? "You only" : "\(memberCount) members"
+        if memberCount <= 1 {
+            return NSLocalizedString("You only", comment: "Single member in list")
+        } else {
+            return String(format: NSLocalizedString("%d members", comment: "Multiple members in list"), memberCount)
+        }
     }
 
     var inviteCode: String {

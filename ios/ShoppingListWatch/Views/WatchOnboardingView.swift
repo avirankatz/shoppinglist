@@ -46,7 +46,7 @@ struct WatchOnboardingView: View {
                         if viewModel.isLoading {
                             ProgressView()
                         } else {
-                            Text(mode == .create ? "Create" : "Join")
+                            Text(LocalizedStringKey(mode == .create ? "Create" : "Join"))
                         }
                     }
                     .buttonStyle(.borderedProminent)
