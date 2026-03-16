@@ -16,10 +16,23 @@ struct WatchOnboardingView: View {
                         .font(.title2)
                         .foregroundStyle(.green)
 
-                    Picker("Mode", selection: $mode) {
-                        Text("Create").tag(Mode.create)
-                        Text("Join").tag(Mode.join)
+                    HStack(spacing: 0) {
+                        ForEach([Mode.create, Mode.join], id: \.self) { m in
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.2)) { mode = m }
+                            } label: {
+                                Text(m == .create ? "Create" : "Join")
+                                    .font(.footnote.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 8)
+                                    .background(mode == m ? Color.green : Color.clear)
+                                    .foregroundStyle(mode == m ? .black : .secondary)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
+                    .background(Color.white.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
                     if mode == .create {
                         TextField("List name", text: $viewModel.listName)

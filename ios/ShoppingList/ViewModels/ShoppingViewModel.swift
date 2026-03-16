@@ -55,15 +55,6 @@ final class ShoppingViewModel: ObservableObject {
         activeList?.inviteCode ?? ""
     }
 
-    // MARK: - Init
-
-    init() {
-        // Pre-warm the auth session immediately so it's ready by the time onAppear fires.
-        Task {
-            _ = try? await SupabaseService.shared.currentUserId()
-        }
-    }
-
     // MARK: - Persistence
 
     private let listIdKey = "shoppinglist.activeListId"
@@ -409,6 +400,7 @@ final class ShoppingViewModel: ObservableObject {
     // MARK: - Lifecycle
 
     func onAppear() async {
+        await SupabaseService.shared.currentUserId()
         restoreSession()
         if activeList != nil {
             // Run data load and realtime subscription setup concurrently —
