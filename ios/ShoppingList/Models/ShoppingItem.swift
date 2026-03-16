@@ -5,7 +5,7 @@ struct ShoppingItem: Identifiable, Codable, Equatable {
     let listId: String
     var text: String
     var checked: Bool
-    let updatedAt: String
+    var updatedAt: String
 
     enum CodingKeys: String, CodingKey {
         case id

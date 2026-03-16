@@ -61,6 +61,11 @@ final class ShoppingViewModel: ObservableObject {
     private let inviteCodeKey = "shoppinglist.activeInviteCode"
     private let userNameKey = "shoppinglist.userName"
 
+    private var itemOrderKey: String {
+        guard let listId = activeList?.id else { return "shoppinglist.itemOrder" }
+        return "shoppinglist.itemOrder.\(listId)"
+    }
+
     func restoreSession() {
         userName = UserDefaults.standard.string(forKey: userNameKey) ?? ""
 
@@ -169,7 +174,20 @@ final class ShoppingViewModel: ObservableObject {
             async let fetchedList = service.fetchList(id: listId)
 
             let (newItems, count, list) = try await (fetchedItems, fetchedCount, fetchedList)
-            items = newItems
+            // Restore saved manual order for unchecked items
+            let savedOrder = UserDefaults.standard.stringArray(forKey: itemOrderKey) ?? []
+            if !savedOrder.isEmpty {
+                var unchecked = newItems.filter { !$0.checked }
+                let checked = newItems.filter { $0.checked }
+                unchecked.sort {
+                    let aIdx = savedOrder.firstIndex(of: $0.id) ?? Int.max
+                    let bIdx = savedOrder.firstIndex(of: $1.id) ?? Int.max
+                    return aIdx < bIdx
+                }
+                items = unchecked + checked
+            } else {
+                items = newItems
+            }
             memberCount = count
             activeList = list
             saveSession()
@@ -218,6 +236,9 @@ final class ShoppingViewModel: ObservableObject {
         // Optimistic update
         if let index = items.firstIndex(where: { $0.id == item.id }) {
             items[index].checked = newChecked
+            if newChecked {
+                items[index].updatedAt = ISO8601DateFormatter().string(from: Date())
+            }
         }
 
         do {
@@ -296,6 +317,8 @@ final class ShoppingViewModel: ObservableObject {
         let checked = items.filter { $0.checked }
         unchecked.move(fromOffsets: source, toOffset: destination)
         items = unchecked + checked
+        let orderedIds = unchecked.map { $0.id }
+        UserDefaults.standard.set(orderedIds, forKey: itemOrderKey)
     }
 
     func renameList(_ newName: String) async {
