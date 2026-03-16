@@ -1,6 +1,6 @@
 name: ShoppingList
 options:
-  bundleIdPrefix: com.shoppinglist
+  bundleIdPrefix: com.avirankatz.shoppinglist
   deploymentTarget:
     iOS: "17.0"
     watchOS: "10.0"
