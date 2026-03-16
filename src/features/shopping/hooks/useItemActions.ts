@@ -104,7 +104,15 @@ export function useItemActions({
       if (!supabase || !activeList) return;
       const nextChecked = !item.checked;
       setItems((cur) =>
-        cur.map((i) => (i.id === item.id ? { ...i, checked: nextChecked } : i)),
+        cur.map((i) =>
+          i.id === item.id
+            ? {
+                ...i,
+                checked: nextChecked,
+                ...(nextChecked && { updated_at: new Date().toISOString() }),
+              }
+            : i,
+        ),
       );
 
       if (!isOnline || item.id.startsWith("local-")) {
