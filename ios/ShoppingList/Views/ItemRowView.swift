@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct ItemRowView: View {
-    @EnvironmentObject var viewModel: ShoppingViewModel
     let item: ShoppingItem
+    let onToggle: () async -> Void
+    let onDelete: () async -> Void
+    let onEdit: (_ newText: String) async -> Void
+
     @State private var isEditing = false
     @State private var editText: String = ""
 
@@ -22,7 +25,7 @@ struct ItemRowView: View {
     private var displayView: some View {
         HStack(spacing: 12) {
             Button {
-                Task { await viewModel.toggleItem(item) }
+                Task { await onToggle() }
             } label: {
                 Image(systemName: item.checked ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
@@ -48,7 +51,7 @@ struct ItemRowView: View {
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {
-                Task { await viewModel.removeItem(item) }
+                Task { await onDelete() }
             } label: {
                 Label("Delete", systemImage: "trash")
             }
@@ -66,28 +69,30 @@ struct ItemRowView: View {
     private var editView: some View {
         HStack(spacing: 8) {
             TextField("Item name", text: $editText)
-                .textFieldStyle(.roundedBorder)
                 .submitLabel(.done)
                 .onSubmit { saveEdit() }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
 
             Button("Save") { saveEdit() }
                 .font(.subheadline.bold())
                 .foregroundStyle(.green)
 
-            Button("Cancel") { 
+            Button("Cancel") {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    isEditing = false 
+                    isEditing = false
                 }
             }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
         }
     }
 
     private func saveEdit() {
         let trimmed = editText.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
-        Task { await viewModel.editItem(item, newText: trimmed) }
+        Task { await onEdit(trimmed) }
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             isEditing = false
         }

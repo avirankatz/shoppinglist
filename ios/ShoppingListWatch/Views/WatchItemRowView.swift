@@ -1,12 +1,13 @@
 import SwiftUI
 
 struct WatchItemRowView: View {
-    @EnvironmentObject var viewModel: ShoppingViewModel
     let item: ShoppingItem
+    let onToggle: () async -> Void
+    let onDelete: () async -> Void
 
     var body: some View {
         Button {
-            Task { await viewModel.toggleItem(item) }
+            Task { await onToggle() }
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: item.checked ? "checkmark.circle.fill" : "circle")
@@ -23,7 +24,7 @@ struct WatchItemRowView: View {
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {
-                Task { await viewModel.removeItem(item) }
+                Task { await onDelete() }
             } label: {
                 Label("Delete", systemImage: "trash")
             }

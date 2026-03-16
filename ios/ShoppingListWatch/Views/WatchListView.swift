@@ -13,13 +13,17 @@ struct WatchListView: View {
                         .font(.footnote)
                 } else {
                     ForEach(viewModel.uncheckedItems) { item in
-                        WatchItemRowView(item: item)
+                        WatchItemRowView(item: item,
+                                         onToggle: { await viewModel.toggleItem(item) },
+                                         onDelete: { await viewModel.removeItem(item) })
                     }
 
                     if !viewModel.checkedItems.isEmpty {
                         Section("Done") {
                             ForEach(viewModel.checkedItems) { item in
-                                WatchItemRowView(item: item)
+                                WatchItemRowView(item: item,
+                                                 onToggle: { await viewModel.toggleItem(item) },
+                                                 onDelete: { await viewModel.removeItem(item) })
                             }
                         }
                     }
