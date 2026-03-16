@@ -57,20 +57,23 @@ struct WatchListView: View {
 struct WatchAddItemView: View {
     @EnvironmentObject var viewModel: ShoppingViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var newItemText: String = ""
 
     var body: some View {
         VStack(spacing: 12) {
-            TextField("New item", text: $viewModel.newItemText)
+            TextField("New item", text: $newItemText)
 
             Button("Add") {
+                let text = newItemText
+                newItemText = ""
                 Task {
-                    await viewModel.addItem()
+                    await viewModel.addItem(text: text)
                     dismiss()
                 }
             }
             .buttonStyle(.borderedProminent)
             .tint(.green)
-            .disabled(viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
+            .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .navigationTitle("Add Item")
     }

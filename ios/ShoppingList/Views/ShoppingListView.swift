@@ -3,6 +3,7 @@ import SwiftUI
 struct ShoppingListView: View {
     @EnvironmentObject var viewModel: ShoppingViewModel
     @State private var showSettings = false
+    @State private var newItemText: String = ""
     @FocusState private var isAddFieldFocused: Bool
 
     var body: some View {
@@ -125,11 +126,13 @@ struct ShoppingListView: View {
 
     private var addItemBar: some View {
         HStack(spacing: 10) {
-            TextField("Add an item...", text: $viewModel.newItemText)
+            TextField("Add an item...", text: $newItemText)
                 .focused($isAddFieldFocused)
                 .submitLabel(.done)
                 .onSubmit {
-                    Task { await viewModel.addItem() }
+                    let text = newItemText
+                    newItemText = ""
+                    Task { await viewModel.addItem(text: text) }
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 9)
@@ -140,10 +143,12 @@ struct ShoppingListView: View {
                 )
 
             Button {
-                Task { await viewModel.addItem() }
+                let text = newItemText
+                newItemText = ""
+                Task { await viewModel.addItem(text: text) }
                 isAddFieldFocused = true
             } label: {
-                let isEmpty = viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty
+                let isEmpty = newItemText.trimmingCharacters(in: .whitespaces).isEmpty
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(.white)
@@ -155,7 +160,7 @@ struct ShoppingListView: View {
                     )
             }
             .buttonStyle(.plain)
-            .disabled(viewModel.newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
+            .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)

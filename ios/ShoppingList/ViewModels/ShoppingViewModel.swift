@@ -18,9 +18,6 @@ final class ShoppingViewModel: ObservableObject {
     @Published var listName: String = "Our Family List"
     @Published var joinCode: String = ""
 
-    // Item input
-    @Published var newItemText: String = ""
-
     private let service = SupabaseService.shared
     private var realtimeChannel: RealtimeChannelV2?
 
@@ -52,6 +49,15 @@ final class ShoppingViewModel: ObservableObject {
 
     var inviteCode: String {
         activeList?.inviteCode ?? ""
+    }
+
+    // MARK: - Init
+
+    init() {
+        // Pre-warm the auth session immediately so it's ready by the time onAppear fires.
+        Task {
+            _ = try? await SupabaseService.shared.currentUserId()
+        }
     }
 
     // MARK: - Persistence
@@ -202,9 +208,9 @@ final class ShoppingViewModel: ObservableObject {
 
     // MARK: - Item Actions
 
-    func addItem() async {
+    func addItem(text: String) async {
         guard let listId = activeList?.id else { return }
-        let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
+        let trimmed = text.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
         // Optimistic update
@@ -216,7 +222,6 @@ final class ShoppingViewModel: ObservableObject {
             updatedAt: ISO8601DateFormatter().string(from: Date())
         )
         items.insert(localItem, at: 0)
-        newItemText = ""
 
         do {
             let serverItem = try await service.addItem(listId: listId, text: trimmed)
@@ -402,8 +407,11 @@ final class ShoppingViewModel: ObservableObject {
     func onAppear() async {
         restoreSession()
         if activeList != nil {
-            await loadListData()
-            await subscribeToChanges()
+            // Run data load and realtime subscription setup concurrently —
+            // they are independent and together were adding ~1s of sequential delay.
+            async let data: Void = loadListData()
+            async let sub: Void = subscribeToChanges()
+            _ = await (data, sub)
         }
     }
 }
