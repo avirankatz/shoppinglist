@@ -307,8 +307,8 @@ export function useListSync() {
         return (
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         );
-      if (aIdx === -1) return -1;
-      if (bIdx === -1) return 1;
+      if (aIdx === -1) return 1; // not in saved order → put at end
+      if (bIdx === -1) return -1; // not in saved order → put at end
       return aIdx - bIdx;
     });
 

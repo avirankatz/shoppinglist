@@ -1,0 +1,80 @@
+import SwiftUI
+
+struct WatchListView: View {
+    @EnvironmentObject var viewModel: ShoppingViewModel
+    @State private var showAddItem = false
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if viewModel.items.isEmpty {
+                    Text("No items yet")
+                        .foregroundStyle(.secondary)
+                        .font(.footnote)
+                } else {
+                    ForEach(viewModel.uncheckedItems) { item in
+                        WatchItemRowView(item: item,
+                                         onToggle: { await viewModel.toggleItem(item) },
+                                         onDelete: { await viewModel.removeItem(item) })
+                    }
+
+                    if !viewModel.checkedItems.isEmpty {
+                        Section("Done") {
+                            ForEach(viewModel.checkedItems) { item in
+                                WatchItemRowView(item: item,
+                                                 onToggle: { await viewModel.toggleItem(item) },
+                                                 onDelete: { await viewModel.removeItem(item) })
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle(viewModel.activeList?.name ?? "List")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showAddItem = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(role: .destructive) {
+                        viewModel.leaveList()
+                    } label: {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddItem) {
+                WatchAddItemView()
+            }
+        }
+    }
+}
+
+struct WatchAddItemView: View {
+    @EnvironmentObject var viewModel: ShoppingViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var newItemText: String = ""
+
+    var body: some View {
+        VStack(spacing: 12) {
+            TextField("New item", text: $newItemText)
+
+            Button("Add") {
+                let text = newItemText
+                newItemText = ""
+                Task {
+                    await viewModel.addItem(text: text)
+                    dismiss()
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.green)
+            .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
+        }
+        .navigationTitle("Add Item")
+    }
+}

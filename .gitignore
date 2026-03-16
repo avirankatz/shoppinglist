@@ -23,3 +23,25 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# Xcode / iOS
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+DerivedData/
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.xccheckout
+*.xcscmblueprint
+.build/
+Packages/
+Package.resolved
+ios/Configs/

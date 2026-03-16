@@ -1,4 +1,24 @@
-# React + TypeScript + Vite
+# Shopping List
+
+A real-time collaborative family shopping list app with a web frontend and native iOS/watchOS apps.
+
+## Platforms
+
+| Platform | Technology | Directory |
+|----------|-----------|-----------|
+| Web | React + TypeScript + Vite | `src/` |
+| iOS | SwiftUI | `ios/ShoppingList/` |
+| watchOS | SwiftUI | `ios/ShoppingListWatch/` |
+
+All platforms connect to the same **Supabase** backend for real-time sync, anonymous authentication, and shared data.
+
+### iOS & watchOS
+
+See [`ios/README.md`](ios/README.md) for setup instructions for the native iOS and Apple Watch app.
+
+---
+
+## Web App
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
