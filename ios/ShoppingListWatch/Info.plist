@@ -24,5 +24,7 @@
 	<string>$(SUPABASE_URL)</string>
 	<key>WKCompanionAppBundleIdentifier</key>
 	<string>com.avirankatz.shoppinglist</string>
+	<key>WKRunsIndependentlyOfCompanionApp</key>
+	<false/>
 </dict>
 </plist>

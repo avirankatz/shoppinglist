@@ -97,3 +97,21 @@ targets:
         SUPABASE_URL: "$(SUPABASE_URL)"
         SUPABASE_ANON_KEY: "$(SUPABASE_ANON_KEY)"
         WKCompanionAppBundleIdentifier: com.avirankatz.shoppinglist
+        WKRunsIndependentlyOfCompanionApp: false
+
+schemes:
+  ShoppingList:
+    build:
+      targets:
+        ShoppingList: all
+        ShoppingListWatch: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
