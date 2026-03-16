@@ -433,6 +433,72 @@ export function useShoppingApp() {
     [activeList, sortedItems, setLocalOrder],
   );
 
+  const removeAllDoneItems = useCallback(async () => {
+    if (!supabase || !activeList) return;
+    const doneIds = _items.filter((i) => i.checked).map((i) => i.id);
+    if (doneIds.length === 0) return;
+    setItems((cur) => cur.filter((i) => !i.checked));
+
+    const localIds = doneIds.filter((id) => id.startsWith("local-"));
+    const remoteIds = doneIds.filter((id) => !id.startsWith("local-"));
+
+    for (const id of localIds) {
+      enqueueOperation(activeList.id, { type: "remove", itemId: id });
+    }
+
+    if (!isOnline || remoteIds.length === 0) {
+      if (doneIds.length > 0) setErrorText(t.offlineQueued);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("shopping_items")
+      .delete()
+      .in("id", remoteIds);
+    if (error) {
+      setErrorText(t.saveFailed);
+      await loadListState(activeList.id);
+    }
+  }, [activeList, _items, isOnline, loadListState, setItems, t]);
+
+  const restoreAllDoneItems = useCallback(async () => {
+    if (!supabase || !activeList) return;
+    const doneItems = _items.filter((i) => i.checked);
+    if (doneItems.length === 0) return;
+    setItems((cur) =>
+      cur.map((i) => (i.checked ? { ...i, checked: false } : i)),
+    );
+
+    const localIds = doneItems
+      .filter((i) => i.id.startsWith("local-"))
+      .map((i) => i.id);
+    const remoteIds = doneItems
+      .filter((i) => !i.id.startsWith("local-"))
+      .map((i) => i.id);
+
+    for (const id of localIds) {
+      enqueueOperation(activeList.id, {
+        type: "toggle",
+        itemId: id,
+        checked: false,
+      });
+    }
+
+    if (!isOnline || remoteIds.length === 0) {
+      if (doneItems.length > 0) setErrorText(t.offlineQueued);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("shopping_items")
+      .update({ checked: false })
+      .in("id", remoteIds);
+    if (error) {
+      setErrorText(t.saveFailed);
+      await loadListState(activeList.id);
+    }
+  }, [activeList, _items, isOnline, loadListState, setItems, t]);
+
   // ─── Public API ────────────────────────────────────────────────────────────
 
   return {
@@ -473,6 +539,8 @@ export function useShoppingApp() {
     onInstall: requestInstall,
     onLeaveList: resetApp,
     onReorderItems: reorderItems,
+    onRemoveAllDoneItems: removeAllDoneItems,
+    onRestoreAllDoneItems: restoreAllDoneItems,
   };
 }
 

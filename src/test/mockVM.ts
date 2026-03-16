@@ -57,5 +57,7 @@ export const makeVM = (
   onInstall: vi.fn(),
   onLeaveList: vi.fn(),
   onReorderItems: vi.fn(),
+  onRemoveAllDoneItems: vi.fn(),
+  onRestoreAllDoneItems: vi.fn(),
   ...overrides,
 });
