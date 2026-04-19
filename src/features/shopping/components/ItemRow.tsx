@@ -5,6 +5,7 @@ import type { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { Input } from "../../../components/ui/input";
 import { useShoppingContext } from "../ShoppingContext";
 import type { ShoppingItem } from "../types";
+import { useWebHaptics } from "web-haptics/react";
 
 type ItemRowProps = {
   item: ShoppingItem;
@@ -20,6 +21,7 @@ export const ItemRow = memo(function ItemRow({
   isDragging = false,
 }: ItemRowProps) {
   const { t, onToggleItem, onEditItem, onRemoveItem } = useShoppingContext();
+  const { trigger: haptic } = useWebHaptics();
   const [ripple, setRipple] = useState(false);
   const [justChecked, setJustChecked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -34,7 +36,7 @@ export const ItemRow = memo(function ItemRow({
     if (!item.checked) {
       setRipple(true);
       setJustChecked(true);
-      if (navigator.vibrate) navigator.vibrate(30);
+      void haptic("medium");
       setTimeout(() => {
         setRipple(false);
         setJustChecked(false);

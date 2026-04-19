@@ -7,6 +7,10 @@ import { ItemRow } from "../components/ItemRow";
 import { makeVM, MOCK_ITEM } from "../../../test/mockVM";
 import type { ShoppingItem } from "../types";
 
+vi.mock("web-haptics/react", () => ({
+  useWebHaptics: () => ({ trigger: vi.fn(), cancel: vi.fn(), isSupported: false }),
+}));
+
 function renderWithVM(item: ShoppingItem, vmOverrides = {}) {
   const vm = makeVM(vmOverrides);
   const result = render(
