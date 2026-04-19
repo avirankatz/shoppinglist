@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useCallback, useMemo, useRef, useState } from "react";
+import type { DragUpdate } from "@hello-pangea/dnd";
 import {
   Check,
   Coffee,
@@ -44,6 +45,19 @@ export const ListScreen = memo(function ListScreen() {
   const { trigger: haptic } = useWebHaptics();
   const { scrollRef, pullY, pullThreshold, isRefreshing, handleTouchStart, handleTouchMove, handleTouchEnd } =
     usePullToRefresh(onRefresh);
+
+  const dragDestinationIndexRef = useRef<number | null>(null);
+
+  const handleDragUpdate = useCallback(
+    (update: DragUpdate) => {
+      const newIndex = update.destination?.index ?? null;
+      if (newIndex !== null && newIndex !== dragDestinationIndexRef.current) {
+        dragDestinationIndexRef.current = newIndex;
+        void haptic("selection");
+      }
+    },
+    [haptic],
+  );
 
   const buyMeCoffeeUrl =
     import.meta.env.VITE_BUY_ME_COFFEE_URL || "https://buymeacoffee.com";
@@ -286,8 +300,13 @@ export const ListScreen = memo(function ListScreen() {
             <div className="flex flex-col gap-2">
               {/* Unchecked items — draggable */}
               <DragDropContext
-                onDragStart={() => void haptic("selection")}
+                onDragStart={(start) => {
+                  dragDestinationIndexRef.current = start.source.index;
+                  void haptic("selection");
+                }}
+                onDragUpdate={handleDragUpdate}
                 onDragEnd={(result: DropResult) => {
+                  dragDestinationIndexRef.current = null;
                   if (!result.destination) return;
                   onReorderItems(result.source.index, result.destination.index);
                 }}
