@@ -53,7 +53,7 @@ export const ListScreen = memo(function ListScreen() {
       const newIndex = update.destination?.index ?? null;
       if (newIndex !== null && newIndex !== dragDestinationIndexRef.current) {
         dragDestinationIndexRef.current = newIndex;
-        void haptic("selection");
+        void haptic("light");
       }
     },
     [haptic],
