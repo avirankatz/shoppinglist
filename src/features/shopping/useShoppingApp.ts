@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+
 import { hasSupabaseConfig } from "../../lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { useListSync } from "./hooks/useListSync";
@@ -93,6 +94,12 @@ export function useShoppingApp() {
       setErrorText,
     });
 
+  const onRefresh = useCallback(
+    () =>
+      activeList ? loadListState(activeList.id) : Promise.resolve(),
+    [activeList, loadListState],
+  );
+
   const peerLabel = useMemo(
     () =>
       memberCount <= 1 ? t.youOnly : `${memberCount} ${t.membersConnected}`,
@@ -146,6 +153,7 @@ export function useShoppingApp() {
     onReorderItems: reorderItems,
     onRemoveAllDoneItems: removeAllDoneItems,
     onRestoreAllDoneItems: restoreAllDoneItems,
+    onRefresh,
   };
 }
 
