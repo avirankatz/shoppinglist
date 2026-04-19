@@ -19,6 +19,7 @@ import { Input } from "../../components/ui/input";
 import { useShoppingContext } from "./ShoppingContext";
 import { ItemRow } from "./components/ItemRow";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { useWebHaptics } from "web-haptics/react";
 
 const SUPPORT_PROMPT_STORAGE_PREFIX = "family-shopping:support-prompt:";
 
@@ -38,6 +39,7 @@ export const ListScreen = memo(function ListScreen() {
     onRemoveAllDoneItems,
     onRestoreAllDoneItems,
   } = useShoppingContext();
+  const { trigger: haptic } = useWebHaptics();
 
   const buyMeCoffeeUrl =
     import.meta.env.VITE_BUY_ME_COFFEE_URL || "https://buymeacoffee.com";
@@ -55,9 +57,9 @@ export const ListScreen = memo(function ListScreen() {
   const handleAddItem = useCallback(() => {
     if (!newItemText.trim()) return;
     onAddItem();
-    if (navigator.vibrate) navigator.vibrate(15);
+    void haptic("light");
     inputRef.current?.blur();
-  }, [newItemText, onAddItem]);
+  }, [newItemText, onAddItem, haptic]);
 
   const uncheckedCount = sortedItems.filter((i) => !i.checked).length;
   const checkedCount = sortedItems.length - uncheckedCount;
@@ -246,6 +248,7 @@ export const ListScreen = memo(function ListScreen() {
             <div className="flex flex-col gap-2">
               {/* Unchecked items — draggable */}
               <DragDropContext
+                onDragStart={() => void haptic("selection")}
                 onDragEnd={(result: DropResult) => {
                   if (!result.destination) return;
                   onReorderItems(result.source.index, result.destination.index);
@@ -308,7 +311,10 @@ export const ListScreen = memo(function ListScreen() {
                     <button
                       type="button"
                       title={t.restoreDoneItemsTitle}
-                      onClick={() => void onRestoreAllDoneItems()}
+                      onClick={() => {
+                        void haptic("success");
+                        void onRestoreAllDoneItems();
+                      }}
                       className="flex h-6 w-6 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
@@ -316,7 +322,10 @@ export const ListScreen = memo(function ListScreen() {
                     <button
                       type="button"
                       title={t.clearDoneItemsTitle}
-                      onClick={() => void onRemoveAllDoneItems()}
+                      onClick={() => {
+                        void haptic("medium");
+                        void onRemoveAllDoneItems();
+                      }}
                       className="flex h-6 w-6 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
