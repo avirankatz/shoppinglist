@@ -59,5 +59,6 @@ export const makeVM = (
   onReorderItems: vi.fn(),
   onRemoveAllDoneItems: vi.fn(),
   onRestoreAllDoneItems: vi.fn(),
+  onRefresh: vi.fn(),
   ...overrides,
 });
