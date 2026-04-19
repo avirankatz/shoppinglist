@@ -19,6 +19,7 @@ import { Input } from "../../components/ui/input";
 import { useShoppingContext } from "./ShoppingContext";
 import { ItemRow } from "./components/ItemRow";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { usePullToRefresh } from "./hooks/usePullToRefresh";
 import { useWebHaptics } from "web-haptics/react";
 
 const SUPPORT_PROMPT_STORAGE_PREFIX = "family-shopping:support-prompt:";
@@ -38,8 +39,11 @@ export const ListScreen = memo(function ListScreen() {
     onReorderItems,
     onRemoveAllDoneItems,
     onRestoreAllDoneItems,
+    onRefresh,
   } = useShoppingContext();
   const { trigger: haptic } = useWebHaptics();
+  const { scrollRef, pullY, pullThreshold, isRefreshing, handleTouchStart, handleTouchMove, handleTouchEnd } =
+    usePullToRefresh(onRefresh);
 
   const buyMeCoffeeUrl =
     import.meta.env.VITE_BUY_ME_COFFEE_URL || "https://buymeacoffee.com";
@@ -134,7 +138,41 @@ export const ListScreen = memo(function ListScreen() {
       <AnimatePresence>{showSettings && <SettingsPanel />}</AnimatePresence>
 
       {/* ───── Item list (scrollable middle) ───── */}
-      <div className="flex-1 overflow-y-auto overscroll-contain">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto overscroll-contain"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Pull-to-refresh indicator */}
+        <div
+          className="flex items-center justify-center overflow-hidden"
+          style={{
+            height: isRefreshing ? 52 : pullY,
+            transition: pullY === 0 ? "height 0.25s ease" : "none",
+          }}
+        >
+          {(pullY > 0 || isRefreshing) && (
+            <div
+              style={{
+                transform: !isRefreshing
+                  ? `rotate(${Math.min((pullY / pullThreshold) * 180, 180)}deg)`
+                  : undefined,
+              }}
+              className={isRefreshing ? "animate-spin" : ""}
+            >
+              <RotateCcw
+                className={`h-5 w-5 ${
+                  pullY >= pullThreshold || isRefreshing
+                    ? "text-[var(--primary)]"
+                    : "text-[var(--muted-foreground)]"
+                }`}
+              />
+            </div>
+          )}
+        </div>
+
         <div className="mx-auto max-w-2xl px-4 py-4">
           {/* Install banner */}
           <AnimatePresence>
