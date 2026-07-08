@@ -19,6 +19,6 @@
 /* Item Row */
 "Delete" = "מחק";
 
-/* Members (ViewModel) */
+/* Devices (ViewModel) */
 "You only" = "רק אתה";
-"%d members" = "%d חברים";
+"%d devices" = "%d מכשירים";

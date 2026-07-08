@@ -67,9 +67,9 @@ struct SettingsView: View {
                 // Info section
                 Section {
                     HStack {
-                        Label("Members", systemImage: "person.2")
+                        Label("Devices", systemImage: "iphone")
                         Spacer()
-                        Text(viewModel.memberLabel)
+                        Text(viewModel.deviceLabel)
                             .foregroundStyle(.secondary)
                     }
 

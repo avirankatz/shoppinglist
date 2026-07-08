@@ -19,6 +19,6 @@
 /* Item Row */
 "Delete" = "Delete";
 
-/* Members (ViewModel) */
+/* Devices (ViewModel) */
 "You only" = "You only";
-"%d members" = "%d members";
+"%d devices" = "%d devices";

@@ -39,7 +39,7 @@
 "New list name" = "New list name";
 "Rename" = "Rename";
 "Info" = "Info";
-"Members" = "Members";
+"Devices" = "Devices";
 "Sync" = "Sync";
 "Real-time" = "Real-time";
 "Leave List" = "Leave List";
@@ -48,9 +48,9 @@
 "Error" = "Error";
 "OK" = "OK";
 
-/* Members (ViewModel) */
+/* Devices (ViewModel) */
 "You only" = "You only";
-"%d members" = "%d members";
+"%d devices" = "%d devices";
 
 /* Share message: arg1=list name, arg2=invite code */
 "share_invite" = "Join my shopping list \"%@\" with code: %@";

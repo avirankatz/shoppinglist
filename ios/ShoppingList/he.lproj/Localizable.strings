@@ -39,7 +39,7 @@
 "New list name" = "שם רשימה חדש";
 "Rename" = "שנה שם";
 "Info" = "מידע";
-"Members" = "חברים";
+"Devices" = "מכשירים";
 "Sync" = "סנכרון";
 "Real-time" = "בזמן אמת";
 "Leave List" = "עזוב רשימה";
@@ -48,9 +48,9 @@
 "Error" = "שגיאה";
 "OK" = "אישור";
 
-/* Members (ViewModel) */
+/* Devices (ViewModel) */
 "You only" = "רק אתה";
-"%d members" = "%d חברים";
+"%d devices" = "%d מכשירים";
 
 /* Share message: arg1=list name, arg2=invite code */
 "share_invite" = "הצטרפו לרשימת הקניות שלי \"%@\" עם הקוד: %@";

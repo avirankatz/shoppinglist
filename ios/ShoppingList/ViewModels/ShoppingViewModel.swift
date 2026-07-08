@@ -43,11 +43,11 @@ final class ShoppingViewModel: ObservableObject {
         items.filter { $0.checked }.sorted { $0.updatedAt > $1.updatedAt }
     }
 
-    var memberLabel: String {
+    var deviceLabel: String {
         if memberCount <= 1 {
-            return NSLocalizedString("You only", comment: "Single member in list")
+            return NSLocalizedString("You only", comment: "Single device in list")
         } else {
-            return String(format: NSLocalizedString("%d members", comment: "Multiple members in list"), memberCount)
+            return String(format: NSLocalizedString("%d devices", comment: "Multiple devices in list"), memberCount)
         }
     }
 
