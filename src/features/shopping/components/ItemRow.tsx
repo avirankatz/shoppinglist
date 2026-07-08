@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import { Check, GripVertical, X } from "lucide-react";
 import type { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { Input } from "../../../components/ui/input";
@@ -26,10 +26,6 @@ export const ItemRow = memo(function ItemRow({
   const [justChecked, setJustChecked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(item.text);
-
-  useEffect(() => {
-    if (!isEditing) setEditText(item.text);
-  }, [isEditing, item.text]);
 
   const handleToggle = () => {
     if (isEditing) return;

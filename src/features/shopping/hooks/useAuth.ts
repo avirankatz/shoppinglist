@@ -13,12 +13,13 @@ export function useAuth({
   setShowAuthRetry: (v: boolean) => void;
 }) {
   const [authUser, setAuthUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(
+    hasSupabaseConfig && supabase ? true : false,
+  );
   const [authRetryTick, setAuthRetryTick] = useState(0);
 
   useEffect(() => {
     if (!hasSupabaseConfig || !supabase) {
-      setAuthLoading(false);
       return;
     }
 

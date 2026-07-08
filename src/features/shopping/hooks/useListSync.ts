@@ -203,33 +203,50 @@ export function useListSync() {
   // ─── Load from cache and saved order when list changes ─────────────────────
 
   useEffect(() => {
-    if (!activeList?.id) {
-      setLocalOrder([]);
-      return;
-    }
-    const cached = getCachedState(activeList.id);
-    if (cached) {
-      setItems(cached.items);
-      setMemberCount(cached.memberCount);
-      setActiveList(cached.list);
-    }
-    const savedOrder = localStorage.getItem(
-      `${PERSONAL_ORDER_STORAGE_PREFIX}${activeList.id}`,
-    );
-    setLocalOrder(parseJson<string[]>(savedOrder) ?? []);
+    let cancelled = false;
+    const loadCacheAndOrder = () => {
+      if (cancelled) return;
+      if (!activeList?.id) {
+        setLocalOrder([]);
+        return;
+      }
+      const cached = getCachedState(activeList.id);
+      if (cached) {
+        setItems(cached.items);
+        setMemberCount(cached.memberCount);
+        setActiveList(cached.list);
+      }
+      const savedOrder = localStorage.getItem(
+        `${PERSONAL_ORDER_STORAGE_PREFIX}${activeList.id}`,
+      );
+      setLocalOrder(parseJson<string[]>(savedOrder) ?? []);
+    };
+
+    const timer = setTimeout(loadCacheAndOrder, 0);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [activeList?.id]);
 
   // ─── Initial fetch when list changes ───────────────────────────────────────
 
   useEffect(() => {
     if (!activeList?.id) return;
-    void loadListState(activeList.id);
+    const timer = setTimeout(() => {
+      void loadListState(activeList.id);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [activeList?.id, loadListState]);
 
   // ─── Flush pending when back online ────────────────────────────────────────
 
   useEffect(() => {
-    void flushPendingOperations();
+    const timer = setTimeout(() => {
+      void flushPendingOperations();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [flushPendingOperations, isOnline]);
 
   // ─── Realtime subscription ─────────────────────────────────────────────────
