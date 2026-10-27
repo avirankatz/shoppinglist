@@ -75,6 +75,47 @@ class ShoppingRepositoryTest {
         }
     }
 
+    @Test fun rejoiningCurrentListPreservesCacheWhenRefreshFails() = runBlocking {
+        val initial = base.copy(items = listOf(ShoppingItem(itemId, listId, "Milk")), members = 3)
+        Harness(initial) { request ->
+            when (request.url.encodedPath) {
+                "/rest/v1/rpc/join_list_by_code", "/rest/v1/shopping_lists" -> 200 to "[$listJson]"
+                else -> throw IOException("Refresh unavailable")
+            }
+        }.use { h ->
+            assertTrue(h.repository.joinList("CODE", "Alex"))
+            assertEquals(initial.items, h.persisted.items)
+            assertEquals(initial.items, h.repository.state.value.items)
+            assertEquals(3, h.repository.state.value.memberCount)
+            assertEquals("Alex", h.persisted.userName)
+            assertEquals("Refresh unavailable", h.repository.state.value.error)
+        }
+    }
+
+    @Test fun rejectedJoinDoesNotReportSuccessOrChangeCache() = runBlocking {
+        val initial = base.copy(items = listOf(ShoppingItem(itemId, listId, "Milk")))
+        Harness(initial) { 400 to "Join rejected" }.use { h ->
+            assertFalse(h.repository.joinList("CODE", "Alex"))
+            assertEquals(initial, h.persisted)
+            assertNotNull(h.repository.state.value.error)
+        }
+    }
+
+    @Test fun switchingToDifferentListClearsPreviousCacheEvenWhenRefreshFails() = runBlocking {
+        val initial = base.copy(items = listOf(ShoppingItem(itemId, listId, "Milk")), members = 3)
+        val nextList = list.copy(id = itemId, invite_code = "OTHER")
+        Harness(initial) { request ->
+            if (request.url.encodedPath.endsWith("join_list_by_code")) {
+                200 to dataJson.encodeToString(listOf(nextList))
+            } else throw IOException("Refresh unavailable")
+        }.use { h ->
+            assertTrue(h.repository.joinList("OTHER", "Alex"))
+            assertEquals(nextList, h.persisted.list)
+            assertTrue(h.persisted.items.isEmpty())
+            assertEquals(1, h.persisted.members)
+        }
+    }
+
     @Test fun existingListWithoutSessionNeverSignsUp() = runBlocking {
         Harness(base.copy(session = null)).use { h ->
             h.repository.sync()

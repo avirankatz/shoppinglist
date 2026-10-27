@@ -99,6 +99,13 @@ internal fun ShoppingLocale(content: @Composable () -> Unit) {
     )
 }
 
+@Composable
+internal fun InvitationEffect(invitation: String?, ready: Boolean, busy: Boolean, onInvitation: (String) -> Unit) {
+    LaunchedEffect(invitation, ready, busy) {
+        if (invitation != null && ready && !busy) onInvitation(invitation)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppContent(
@@ -126,16 +133,14 @@ private fun AppContent(
     val disabled = busy || !ready
     val switchingBlocked = busy || state.syncing || state.pendingCount > 0
 
-    LaunchedEffect(invitation, ready) {
-        if (invitation != null && ready) {
-            incomingCode = invitation
-            incomingName = state.userName
-            joining = true
-            settings = false
-            confirmation = null
-            editingId = null
-            consumeInvitation()
-        }
+    InvitationEffect(invitation, ready, busy) { code ->
+        incomingCode = code
+        incomingName = state.userName
+        joining = true
+        settings = false
+        confirmation = null
+        editingId = null
+        consumeInvitation()
     }
     fun openLink(url: String) {
         try {

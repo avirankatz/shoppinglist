@@ -118,15 +118,12 @@ class ShoppingViewModel(application: Application) : ViewModel() {
     fun restore() = perform({ _, after -> after.items.none { it.checked } }) { restoreDone() }
     fun rename(name: String, done: () -> Unit) = perform({ before, after -> after.list?.name == name.trim() && (after.error == null || before.list != after.list) }, done) { renameList(name) }
     fun leave(done: () -> Unit) = perform({ _, after -> after.list == null }, done) { leaveList() }
-    fun create(name: String, displayName: String, done: () -> Unit) = perform(
-        { before, after -> after.list != null && after.list.id != before.list?.id }, done,
-    ) { createList(name, displayName) }
-    fun join(code: String, displayName: String, done: () -> Unit) = perform(
-        { before, after ->
-            after.list?.invite_code.equals(code.trim(), ignoreCase = true) &&
-                (before.list?.id != after.list?.id || (after.error == null && after.userName == displayName.trim()))
-        }, done,
-    ) { joinList(code, displayName) }
+    private fun switchList(done: () -> Unit, operation: suspend ShoppingRepository.() -> Boolean) {
+        var committed = false
+        perform({ _, _ -> committed }, done) { committed = operation() }
+    }
+    fun create(name: String, displayName: String, done: () -> Unit) = switchList(done) { createList(name, displayName) }
+    fun join(code: String, displayName: String, done: () -> Unit) = switchList(done) { joinList(code, displayName) }
     fun refresh() = perform({ _, _ -> true }) { sync() }
     fun dismissError() { mutableError.value = null; repository?.clearError() }
 

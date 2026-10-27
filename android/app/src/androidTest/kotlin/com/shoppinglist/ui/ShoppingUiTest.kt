@@ -210,6 +210,51 @@ class ShoppingUiTest {
         compose.onNodeWithText("Move down").assertDoesNotExist()
     }
 
+    @Test fun invitationWaitsForReadinessAndBusyJoinCompletion() {
+        val invitation = mutableStateOf<String?>("FIRST")
+        val ready = mutableStateOf(false)
+        val busy = mutableStateOf(false)
+        val joining = mutableStateOf(false)
+        val code = mutableStateOf("")
+        val consumed = mutableListOf<String>()
+        compose.setContent {
+            InvitationEffect(invitation.value, ready.value, busy.value) {
+                code.value = it
+                joining.value = true
+                consumed += it
+                invitation.value = null
+            }
+            if (joining.value) Text("Join ${code.value}")
+        }
+        compose.runOnIdle {
+            assertTrue(consumed.isEmpty())
+            assertEquals("FIRST", invitation.value)
+            ready.value = true
+        }
+        compose.onNodeWithText("Join FIRST").assertIsDisplayed()
+        compose.runOnIdle { busy.value = true }
+        compose.runOnIdle { invitation.value = "SECOND" }
+        compose.onNodeWithText("Join FIRST").assertIsDisplayed()
+        compose.runOnIdle {
+            assertEquals(listOf("FIRST"), consumed)
+            assertEquals("SECOND", invitation.value)
+            // A successful join closes its dialog before releasing busy.
+            joining.value = false
+        }
+        compose.onNodeWithText("Join FIRST").assertDoesNotExist()
+        compose.runOnIdle { busy.value = false }
+        compose.onNodeWithText("Join SECOND").assertIsDisplayed()
+        compose.runOnIdle {
+            assertEquals(listOf("FIRST", "SECOND"), consumed)
+            assertNull(invitation.value)
+            joining.value = false
+            busy.value = true
+        }
+        compose.runOnIdle { busy.value = false }
+        compose.onNodeWithText("Join SECOND").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(listOf("FIRST", "SECOND"), consumed) }
+    }
+
     @Test fun invitationsAcceptOnlyConfiguredWebsiteOrCustomJoinScheme() {
         val web = "https://example.com/family"
         assertEquals("ABCD-EFGH-IJKL", invitationCode(Uri.parse("shoppinglist://join?join=ABCD-EFGH-IJKL"), web))

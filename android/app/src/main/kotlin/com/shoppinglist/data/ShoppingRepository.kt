@@ -68,14 +68,16 @@ class ShoppingRepository internal constructor(
         publish()
     }
 
-    private suspend fun guarded(block: suspend () -> Unit) {
-        try {
+    private suspend fun guarded(block: suspend () -> Unit): Boolean {
+        return try {
             check(!closed) { "Repository is closed" }
             block()
+            true
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             mutex.withLock { mutableState.value = mutableState.value.copy(error = e.message ?: "Request failed") }
+            false
         }
     }
 
@@ -294,7 +296,11 @@ class ShoppingRepository internal constructor(
                 val list = dataJson.decodeFromString<List<ShoppingList>>(request(path, "POST", body)).single()
                 UUID.fromString(list.id)
                 mutex.withLock {
-                    commit(snapshot.copy(list = list, items = emptyList(), members = 1, userName = displayName.trim()))
+                    val sameList = snapshot.list?.id == list.id
+                    commit(snapshot.copy(
+                        list = list, items = if (sameList) snapshot.items else emptyList(),
+                        members = if (sameList) snapshot.members else 1, userName = displayName.trim(),
+                    ))
                     updateRealtime()
                 }
             }
