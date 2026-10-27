@@ -109,3 +109,11 @@ This repo includes an Actions workflow at [.github/workflows/deploy-pages.yml](.
 4. Push to `main` (or run the workflow manually).
 
 The Vite `base` path is configured automatically in CI so project pages deploy correctly under `/<repo>/`.
+
+## Privacy and deletion
+
+- [Privacy policy](https://avirankatz.github.io/shoppinglist/privacy.html) — English and Hebrew.
+- [Request account deletion](https://avirankatz.github.io/shoppinglist/delete-account.html) — public, manual email request.
+- [Code inventory, legal sources and operator procedure](docs/privacy-review.md), including production settings to verify before store submission.
+
+Pages deploy automatically from `public/` on pushes to `main`. Publish an updated Android build to expose the in-app Privacy menu and deletion-request links.

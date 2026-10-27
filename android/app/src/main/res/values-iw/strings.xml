@@ -65,4 +65,9 @@
     <string name="auth_setup">בהגדרות ספקי האימות של Supabase Auth, הפעילו Anonymous sign-ins. החילו את סכמת מסד הנתונים והרשאות השורה של רשימת הקניות מתוך המאגר הזה.</string>
     <string name="no_link_handler">אין אפליקציה זמינה לפתיחה או לשיתוף של הקישור.</string>
     <string name="startup_failed">לא ניתן לאתחל את האחסון המקומי. סגרו ופתחו מחדש את האפליקציה כדי לנסות שוב. אל תמחקו את נתוני האפליקציה: ייתכן ששינויים שנשמרו עדיין נמצאים במכשיר הזה.</string>
+    <string name="privacy_menu">פרטיות</string>
+    <string name="privacy_policy">מדיניות פרטיות</string>
+    <string name="request_account_deletion">בקשת מחיקת חשבון</string>
+    <string name="deletion_details">פרטי תהליך המחיקה</string>
+    <string name="privacy_notice">שם התצוגה הוא רשות. השם ותוכן הרשימה נשמרים ב־Supabase. מדיניות הפרטיות ובקשות מחיקה זמינות בתפריט פרטיות למעלה.</string>
 </resources>

@@ -4,6 +4,8 @@ import { OnboardingScreen } from "./features/shopping/OnboardingScreen";
 import { useShoppingApp } from "./features/shopping/useShoppingApp";
 import { ShoppingContext } from "./features/shopping/ShoppingContext";
 
+import { PrivacyLinks } from "./features/shopping/PrivacyLinks";
+
 function App() {
   const vm = useShoppingApp();
 
@@ -60,6 +62,7 @@ function App() {
             </div>
           )}
         </AnimatePresence>
+        <PrivacyLinks isRtl={vm.isRtl} accountId={vm.privacyAccountId} />
       </main>
     </ShoppingContext.Provider>
   );

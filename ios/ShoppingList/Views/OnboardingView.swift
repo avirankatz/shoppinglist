@@ -52,6 +52,10 @@ struct OnboardingView: View {
                     .padding(.bottom, 36)
                     .padding(.horizontal)
 
+                    Link("Privacy policy / מדיניות פרטיות", destination: URL(string: "https://avirankatz.github.io/shoppinglist/privacy.html")!)
+                        .font(.footnote)
+                        .padding(.bottom, 16)
+
                     // Mode picker
                     Picker("Mode", selection: $mode) {
                         Text("Create").tag(OnboardingMode.create)

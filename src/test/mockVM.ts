@@ -20,6 +20,7 @@ export const MOCK_ITEM = {
 export const makeVM = (
   overrides: Partial<ShoppingAppVM> = {},
 ): ShoppingAppVM => ({
+  privacyAccountId: undefined,
   hasSupabaseConfig: false,
   t: textByLanguage.en,
   isRtl: false,
