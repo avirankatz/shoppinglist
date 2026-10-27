@@ -62,6 +62,12 @@ export const OnboardingScreen = memo(function OnboardingScreen({
           <p className="mt-1.5 text-sm text-[var(--muted-foreground)]">{t.createDescription}</p>
         </div>
 
+        <p className="mb-4 text-sm text-[var(--muted-foreground)]">
+          {t.language === 'עברית'
+            ? 'An optional name and shared list contents are stored with Supabase. '
+            : 'שם התצוגה הוא רשות. השם ותוכן הרשימה נשמרים ב־Supabase. '}
+          <a className="underline" href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy policy / מדיניות פרטיות</a>
+        </p>
         <div className="space-y-5">
           {/* Tab toggle + language */}
           <div className="flex items-center justify-between gap-2">

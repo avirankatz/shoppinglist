@@ -115,6 +115,7 @@ export function useShoppingApp() {
 
   return {
     hasSupabaseConfig,
+    privacyAccountId: authUser?.id,
     t,
     isRtl,
     mode,

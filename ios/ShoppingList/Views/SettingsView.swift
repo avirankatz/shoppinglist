@@ -83,6 +83,11 @@ struct SettingsView: View {
                     Text("Info")
                 }
 
+                Section {
+                    Link("Privacy policy / מדיניות פרטיות", destination: URL(string: "https://avirankatz.github.io/shoppinglist/privacy.html")!)
+                    Link("Request account deletion / בקשת מחיקה", destination: URL(string: "https://avirankatz.github.io/shoppinglist/delete-account.html")!)
+                }
+
                 // Leave list
                 Section {
                     Button(role: .destructive) {

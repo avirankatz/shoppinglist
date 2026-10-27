@@ -77,6 +77,7 @@ export default defineConfig({
       },
       workbox: {
         cacheId: "family-shopping-v2",
+        navigateFallbackDenylist: [/\/(?:privacy|delete-account)\.html$/],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,

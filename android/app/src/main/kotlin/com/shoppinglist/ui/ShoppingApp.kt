@@ -118,6 +118,7 @@ private fun AppContent(
     consumeInvitation: () -> Unit,
 ) {
     var settings by rememberSaveable { mutableStateOf(false) }
+    var privacyMenu by rememberSaveable { mutableStateOf(false) }
     var confirmation by rememberSaveable { mutableStateOf<String?>(null) }
     var editingId by rememberSaveable { mutableStateOf<String?>(null) }
     var editDraft by rememberSaveable { mutableStateOf("") }
@@ -159,6 +160,24 @@ private fun AppContent(
             TopAppBar(
                 title = { Text(state.list?.name ?: text(R.string.app_name), maxLines = 2) },
                 actions = {
+                    Box {
+                        TextButton(onClick = { privacyMenu = true }) { Text(text(R.string.privacy_menu)) }
+                        DropdownMenu(expanded = privacyMenu, onDismissRequest = { privacyMenu = false }) {
+                            DropdownMenuItem(text = { Text(text(R.string.privacy_policy)) }, onClick = {
+                                privacyMenu = false
+                                openLink("https://avirankatz.github.io/shoppinglist/privacy.html")
+                            })
+                            DropdownMenuItem(text = { Text(text(R.string.request_account_deletion)) }, onClick = {
+                                privacyMenu = false
+                                val body = "Please delete my Shopping List account and associated data.\nAccount ID: ${state.userId.ifBlank { "unknown" }}\nI understand owned lists will be deleted for all members."
+                                openLink("mailto:aviran.katz@gmail.com?subject=Shopping%20List%20account%20deletion&body=${Uri.encode(body)}")
+                            })
+                            DropdownMenuItem(text = { Text(text(R.string.deletion_details)) }, onClick = {
+                                privacyMenu = false
+                                openLink("https://avirankatz.github.io/shoppinglist/delete-account.html")
+                            })
+                        }
+                    }
                     if (state.list != null) {
                         IconButton(onClick = model::refresh, enabled = !disabled && !state.syncing) {
                             Icon(Icons.Default.Refresh, text(R.string.refresh))
@@ -359,6 +378,7 @@ internal fun Onboarding(state: ShoppingState, busy: Boolean, model: ShoppingView
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         item { Text(text(R.string.create_description), style = MaterialTheme.typography.bodyLarge) }
+        item { Text(text(R.string.privacy_notice), style = MaterialTheme.typography.bodySmall) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 FilterChip(selected = !join, onClick = { join = false }, enabled = !busy, label = { Text(text(R.string.create_tab)) })
