@@ -26,6 +26,48 @@ Set `ANDROID_HOME` to your SDK directory for command-line builds, or let Android
 
 Without backend configuration, the app shows setup instructions rather than crashing. Release builds enable shrinking; configure your own signing key before distribution.
 
+## Google Play releases
+
+The manual [Android release workflow](../.github/workflows/android-release.yml) builds a signed AAB, runs release unit tests and lint, and optionally uploads a **draft to internal testing**. It only runs from `main`; it never publishes directly to production. Complete/roll out the draft in Play Console after checking it. Existing debug CI is unchanged.
+
+### One-time setup
+
+1. Create/verify your Google Play developer account and create the app in Play Console. The package ID is `com.avirankatz.shoppinglist`; confirm this before the first upload because it cannot be changed for that app afterward. Complete the required listing, privacy policy, Data safety, content rating, app access, and audience declarations. Follow any testing/verification requirements shown for your account.
+2. Generate an **upload key** locally (or reuse your existing upload key if this app has already been uploaded):
+
+   ```sh
+   keytool -genkeypair -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000
+   base64 -i upload-keystore.jks | pbcopy
+   ```
+
+   The second command copies the base64-encoded keystore for the GitHub secret below. Keep an independent, secure backup of the keystore, alias, and passwords. Never commit them. With Play App Signing, this is the upload key, not Google's app-signing key.
+3. In GitHub repository **Settings → Environments**, create `google-play`. Restrict deployment branches to `main`; add required reviewers if supported by your GitHub plan. Add the following environment secrets and variables:
+
+   | Type | Name | Value |
+   | --- | --- | --- |
+   | Secret | `ANDROID_KEYSTORE_BASE64` | Base64-encoded upload keystore |
+   | Secret | `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
+   | Secret | `ANDROID_KEY_ALIAS` | `upload`, or the existing alias |
+   | Secret | `ANDROID_KEY_PASSWORD` | Key password (often the same as the keystore password) |
+   | Secret | `SUPABASE_ANON_KEY` | Production public/anon client key, never the service-role key |
+   | Secret | `PLAY_SERVICE_ACCOUNT_JSON` | Entire Google service-account JSON key; only needed when publishing |
+   | Variable | `SUPABASE_URL` | Production Supabase HTTPS URL |
+   | Variable | `WEB_APP_URL` | Optional deployed web app URL |
+   | Variable | `BUY_ME_COFFEE_URL` | Optional support URL |
+
+   Backend values are embedded in the app; storing the anon key as a GitHub secret does not make it private on devices. RLS must protect the backend. Signing and publishing credentials are passed only to the trusted release workflow, not pull requests.
+4. Run **Actions → Android release → Run workflow** on `main`, enter version code `1` (if unused) and version name `1.0.0`, and leave **Upload to Google Play** unchecked. Download the `android-release-1` artifact and extract `app-release.aab`.
+5. Manually upload that AAB to an internal-testing release in Play Console and enroll in Play App Signing as prompted. Complete the required app setup. The first upload bootstraps the package for subsequent API uploads; it does not require a public production launch.
+6. For automated uploads, create/select a Google Cloud project, enable the **Google Play Android Developer API**, and create a service account with a JSON key. Invite its email through Play Console **Users and permissions**, granting access only to this app and the permissions needed to view the app and manage testing releases. Do not grant account admin or production release access. Save the JSON as `PLAY_SERVICE_ACCOUNT_JSON` above, not in the repository. Account-to-Cloud-project linking is no longer required. See [Google's API setup guide](https://developers.google.com/android-publisher/getting_started).
+
+### Subsequent releases
+
+Run the workflow with a **version code greater than every previous Play upload**, a user-visible version name, and publishing checked. Re-running an already uploaded version code will be rejected by Play; choose a new code. The workflow saves the signed AAB and R8 mapping file for 30 days and uploads a draft to the `internal` track. Finish that draft in Play Console and distribute to testers; promote the tested release to production manually when eligible. Artifact expiry does not replace your own release/key backups.
+
+The pipeline uses a service-account JSON key for straightforward setup. Rotate/revoke it if exposed; GitHub OIDC / Workload Identity Federation can replace this long-lived Google key later. CI providers and the upload action process release credentials, so review workflow changes before running a release.
+
+For local signed builds, provide `VERSION_CODE`, `VERSION_NAME`, `ANDROID_KEYSTORE_PATH` (absolute path), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, and `ANDROID_KEY_PASSWORD` as environment variables, then run `./gradlew :app:bundleRelease`. Without a keystore path, local release builds remain unsigned as before. Never put passwords in command-line arguments or tracked files.
+
 ## Features
 
 - Create or join a family list using the existing Supabase anonymous-auth identity and RPCs.

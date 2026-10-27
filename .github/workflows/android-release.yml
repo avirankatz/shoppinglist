@@ -1,0 +1,115 @@
+name: Android release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: 'Version code (integer greater than every previous Play upload)'
+        required: true
+        type: string
+      version_name:
+        description: 'User-visible version, e.g. 1.0.0'
+        required: true
+        type: string
+      publish:
+        description: 'Upload to Google Play internal testing (leave off for first manual upload)'
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: google-play
+    defaults:
+      run:
+        working-directory: android
+    env:
+      VERSION_CODE: ${{ inputs.version_code }}
+      VERSION_NAME: ${{ inputs.version_name }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      WEB_APP_URL: ${{ vars.WEB_APP_URL }}
+      BUY_ME_COFFEE_URL: ${{ vars.BUY_ME_COFFEE_URL }}
+      ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload-keystore.jks
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate release configuration
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+          from pathlib import Path
+
+          required = ["VERSION_NAME", "SUPABASE_URL", "SUPABASE_ANON_KEY",
+                      "KEYSTORE_BASE64", "ANDROID_KEYSTORE_PASSWORD",
+                      "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]
+          for name in required:
+              if not os.environ.get(name, "").strip():
+                  raise SystemExit(f"Missing release configuration: {name}")
+          code = os.environ["VERSION_CODE"]
+          if not code.isascii() or not code.isdecimal() or not 1 <= int(code) <= 2100000000:
+              raise SystemExit("Version code must be an integer between 1 and 2100000000")
+          if os.environ["PUBLISH"] == "true":
+              credentials = json.loads(os.environ["PLAY_SERVICE_ACCOUNT_JSON"])
+              if credentials.get("type") != "service_account":
+                  raise SystemExit("PLAY_SERVICE_ACCOUNT_JSON must be a service account key")
+          path = Path(os.environ["ANDROID_KEYSTORE_PATH"])
+          path.write_bytes(base64.b64decode(os.environ["KEYSTORE_BASE64"], validate=True))
+          path.chmod(0o600)
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Test and build signed bundle
+        run: ./gradlew :app:testReleaseUnitTest :app:lintRelease :app:bundleRelease --console=plain
+      - name: Verify bundle signature
+        run: |
+          jarsigner -verify app/build/outputs/bundle/release/app-release.aab
+          keytool -printcert -jarfile app/build/outputs/bundle/release/app-release.aab
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-release-${{ inputs.version_code }}
+          path: |
+            android/app/build/outputs/bundle/release/app-release.aab
+            android/app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload to Google Play internal testing
+        if: inputs.publish
+        uses: r0adkll/upload-google-play@744d577ff543375f35f60408e13fb32c7caa90ce
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.avirankatz.shoppinglist
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          tracks: internal
+          status: draft
+          releaseName: ${{ inputs.version_name }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-release-reports-${{ inputs.version_code }}
+          path: android/app/build/reports/
+      - name: Remove upload key
+        if: always()
+        run: rm -f "$ANDROID_KEYSTORE_PATH"

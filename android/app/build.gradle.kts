@@ -28,8 +28,10 @@ android {
         applicationId = "com.avirankatz.shoppinglist"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = configValue("VERSION_CODE").ifBlank { "1" }.toInt().also {
+            require(it in 1..2100000000) { "VERSION_CODE must be between 1 and 2100000000" }
+        }
+        versionName = configValue("VERSION_NAME").ifBlank { "1.0.0" }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "SUPABASE_URL", quoted(configValue("SUPABASE_URL")))
         buildConfigField("String", "SUPABASE_ANON_KEY", quoted(configValue("SUPABASE_ANON_KEY")))
@@ -49,8 +51,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+    signingConfigs {
+        if (configValue("ANDROID_KEYSTORE_PATH").isNotBlank()) {
+            create("release") {
+                storeFile = file(configValue("ANDROID_KEYSTORE_PATH"))
+                storePassword = configValue("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = configValue("ANDROID_KEY_ALIAS")
+                keyPassword = configValue("ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
