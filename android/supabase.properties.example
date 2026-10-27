@@ -1,0 +1,8 @@
+# Public client configuration only. Never use a service-role or secret key.
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-public-anon-or-publishable-key
+# Optional: exact URL of the existing web app, including its deployment path.
+# Without this, invitations use shoppinglist://join?join=CODE (Android only).
+WEB_APP_URL=
+# Optional support link; no support button is shown when unset.
+BUY_ME_COFFEE_URL=

@@ -1,16 +1,21 @@
 # Shopping List
 
-A real-time collaborative family shopping list app with a web frontend and native iOS/watchOS apps.
+A real-time collaborative family shopping list app with a web frontend and native Android, iOS, and watchOS apps.
 
 ## Platforms
 
 | Platform | Technology | Directory |
 |----------|-----------|-----------|
 | Web | React + TypeScript + Vite | `src/` |
+| Android | Kotlin + Jetpack Compose + Material 3 | `android/` |
 | iOS | SwiftUI | `ios/ShoppingList/` |
 | watchOS | SwiftUI | `ios/ShoppingListWatch/` |
 
 All platforms connect to the same **Supabase** backend for real-time sync, anonymous authentication, and shared data.
+
+### Android
+
+See [`android/README.md`](android/README.md) for configuration, build instructions, and native app behavior.
 
 ### iOS & watchOS
 
